@@ -111,3 +111,4 @@ Tout se pilote via des helpers idempotents dans `supabase/schema.sql` — édite
 App **fullstack Next.js** : pas de backend séparé. La logique serveur (validation,
 contrôle du jeu, notation) tourne dans les Server Actions. Seule dépendance externe :
 **Supabase** (DB). On héberge donc tout sur **un seul** service (Vercel), Supabase restant la base.
+# frontend-hackathon
