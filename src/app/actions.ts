@@ -29,11 +29,18 @@ export async function joinTeam(
   if (!name) return { error: "Nom d'équipe requis." };
   if (name.length > 40) return { error: "Nom trop long (40 caractères max)." };
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase.rpc("join_team", { p_name: name });
-
-  if (error) return { error: `Erreur serveur : ${error.message}` };
+  let data: { id?: string; error?: string } | null = null;
+  try {
+    const supabase = createAdminClient();
+    const res = await supabase.rpc("join_team", { p_name: name });
+    if (res.error) return { error: `Erreur base : ${res.error.message}` };
+    data = res.data;
+  } catch (e) {
+    // Config manquante / client injoignable → message visible au lieu d'un 500.
+    return { error: e instanceof Error ? e.message : "Erreur serveur inconnue." };
+  }
   if (data?.error) return { error: "Nom d'équipe invalide." };
+  if (!data?.id) return { error: "Réponse inattendue de la base (RPC join_team)." };
 
   const c = await cookies();
   c.set(TEAM_COOKIE, data.id, {

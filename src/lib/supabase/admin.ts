@@ -8,13 +8,18 @@ import { createClient } from "@supabase/supabase-js";
  * ne transitent jamais par le navigateur.
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // .trim() : évite les surprises d'un retour à la ligne collé dans Vercel.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
   if (!url || !serviceKey) {
-    throw new Error(
-      "Supabase non configuré : renseigne NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans .env.local",
-    );
+    const missing = [
+      !url && "NEXT_PUBLIC_SUPABASE_URL",
+      !serviceKey && "SUPABASE_SERVICE_ROLE_KEY",
+    ]
+      .filter(Boolean)
+      .join(", ");
+    throw new Error(`Supabase non configuré — variable(s) manquante(s) : ${missing}`);
   }
 
   return createClient(url, serviceKey, {
