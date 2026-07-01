@@ -1,0 +1,23 @@
+# Blueprint Render — héberge l'app fullstack Next.js (front + Server Actions).
+# La base de données reste sur Supabase. Aucun service backend séparé.
+# Render → New → Blueprint → pointe sur ce repo, puis renseigne les variables
+# marquées `sync: false` dans le dashboard (ce sont des secrets).
+services:
+  - type: web
+    name: operation-albert
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ADMIN_KEY
+        sync: false
