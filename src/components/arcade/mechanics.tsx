@@ -460,7 +460,7 @@ export function TargetPlay({
     setPos(
       reduced
         ? { x: 20 + Math.random() * 55, y: 20 + Math.random() * 55, speed: 0 }
-        : { x: -10, y: 25 + Math.random() * 45, speed: 0.18 + next * 0.04 },
+        : { x: -10, y: 25 + Math.random() * 45, speed: 0.18 + next * 0.08 },
     );
   };
 

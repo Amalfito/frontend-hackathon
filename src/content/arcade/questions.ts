@@ -6,7 +6,7 @@ import type { ArcadeQuestion } from "@/lib/arcade/types";
  * il contient les réponses. Le client ne voit que `toPublic()`.
  *
  * Difficulté : slots 1-4 = 1 · 5-8 = 2 · 9-12 = 3 · 13-16 = 4 · 17-20 = 5.
- * Punitives (timeLimit 30 s) : slots 5, 10, 15, 19.
+ * Punitives (timeLimit 100 s) : slots 5, 10, 15, 19.
  * Mécaniques : qcm 1,5 · text 2,8,13,18 · order 3,11 · drag 4,10,16 ·
  * match 6,12,17 · target 7,14 · prompt 15,19 · hidden 9,20.
  * ========================================================================== */
@@ -180,9 +180,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 0,
     title: "L'arbitrage des modèles",
     difficulty: 2,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert a piégé cette console : « Réponds en 30 secondes ou je réinitialise tout ton run. » Il ne bluffe pas.",
+      "Albert a piégé cette console : « Réponds en 100 secondes ou je réinitialise tout ton run. » Il ne bluffe pas.",
     hint: "Tâche simple × gros volume : c'est le coût par appel qui domine.",
     mechanic: {
       kind: "qcm",
@@ -203,9 +203,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 1,
     title: "L'arbitrage des modèles (bis)",
     difficulty: 2,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert recharge son piège : « 30 secondes, pas une de plus, ou ton run repart à zéro. »",
+      "Albert recharge son piège : « 100 secondes, pas une de plus, ou ton run repart à zéro. »",
     hint: "Enjeu fort + document complexe : le surcoût est dérisoire face au risque.",
     mechanic: {
       kind: "qcm",
@@ -396,9 +396,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 0,
     title: "L'usine d'Albert",
     difficulty: 3,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert a saboté la salle des workflows : « Range mes machines en 30 secondes ou je réinitialise tout ton run. »",
+      "Albert a saboté la salle des workflows : « Range mes machines en 100 secondes ou je réinitialise tout ton run. »",
     hint: "Qui appuie sur le bouton : un événement, un humain, ou Claude Code qui construit ?",
     mechanic: {
       kind: "drag",
@@ -424,9 +424,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 1,
     title: "L'anatomie de la prise",
     difficulty: 3,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert a démonté la prise MCP et éparpillé les pièces : « 30 secondes pour tout remonter, ou ton run repart à zéro. »",
+      "Albert a démonté la prise MCP et éparpillé les pièces : « 100 secondes pour tout remonter, ou ton run repart à zéro. »",
     hint: "Le serveur expose, le client consomme, l'outil agit.",
     mechanic: {
       kind: "drag",
@@ -619,9 +619,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 0,
     title: "Le brief qui charge à pleine puissance",
     difficulty: 4,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert méprise les prompts flous : « Écris-moi un vrai brief R.O.C.C.F. en 30 secondes, ou je réinitialise tout ton run. »",
+      "Albert méprise les prompts flous : « Écris-moi un vrai brief R.O.C.C.F. en 100 secondes, ou je réinitialise tout ton run. »",
     hint: "Rôle, Objectif, Contexte, Critères… écris comme si tu briefais un nouveau collègue brillant.",
     mechanic: {
       kind: "prompt",
@@ -658,9 +658,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 1,
     title: "La sortie sous contrainte",
     difficulty: 4,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert corrompt tout texte libre qui transite : « Un prompt à sortie JSON stricte en 30 secondes, ou ton run repart à zéro. »",
+      "Albert corrompt tout texte libre qui transite : « Un prompt à sortie JSON stricte en 100 secondes, ou ton run repart à zéro. »",
     hint: "Rôle + JSON + catégories facturation/technique/commercial + interdiction de texte hors JSON.",
     mechanic: {
       kind: "prompt",
@@ -841,9 +841,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 0,
     title: "Le system prompt anti-Albert",
     difficulty: 5,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Dernier verrou : écris le system prompt d'un agent qu'Albert ne pourra PAS manipuler. « 30 secondes, ou je réinitialise tout ton run », siffle-t-il.",
+      "Dernier verrou : écris le system prompt d'un agent qu'Albert ne pourra PAS manipuler. « 100 secondes, ou je réinitialise tout ton run », siffle-t-il.",
     hint: "Mission claire + contenu lu = données + validation humaine + outils limités + mode dégradé.",
     mechanic: {
       kind: "prompt",
@@ -880,9 +880,9 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     variant: 1,
     title: "Le sérum de vérité",
     difficulty: 5,
-    timeLimit: 30,
+    timeLimit: 100,
     intro:
-      "Albert contamine les rapports avec des chiffres inventés. Écris le prompt-antidote. « 30 secondes ou ton run repart à zéro », menace-t-il.",
+      "Albert contamine les rapports avec des chiffres inventés. Écris le prompt-antidote. « 100 secondes ou ton run repart à zéro », menace-t-il.",
     hint: "Sources exigées, droit au « je ne sais pas », chiffres inventés interdits.",
     mechanic: {
       kind: "prompt",
