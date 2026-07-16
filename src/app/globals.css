@@ -10,7 +10,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-elegant: var(--font-elegant);
-  --font-heading: var(--font-geist-mono);
+  --font-heading: var(--font-elegant);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,73 +50,85 @@
 }
 
 /* ============================================================================
- * DA ELECTRA — bleu canard.
- * Base sombre "cyber / hacking" pour la partie DÉFIS (question ⇄ réponse).
- * La partie APPRENTISSAGE bascule sur le scope clair `.theme-learn` plus bas.
- * On force le mode sombre : :root et .dark partagent la même palette.
+ * DA ELECTRA — charte officielle go-electra.com :
+ *   pétrole profond  #08222E / #0B2936   (fond « asphalte nuit »)
+ *   menthe électrique #43F5B9            (accent signature)
+ *   menthe pâle       #B9FFE6 / #E7FFFC  (tints)
+ *   orange charge     #FF7A00            (alerte / bombe)
+ * Base sombre « cyber » pour la partie DÉFIS ; la partie APPRENTISSAGE
+ * bascule sur le scope clair `.theme-learn` plus bas.
  * ========================================================================== */
 :root,
 .dark {
-  --background: oklch(0.16 0.022 215);
-  --foreground: oklch(0.92 0.025 200);
-  --card: oklch(0.2 0.028 215);
-  --card-foreground: oklch(0.92 0.025 200);
-  --popover: oklch(0.2 0.028 215);
-  --popover-foreground: oklch(0.92 0.025 200);
-  /* bleu canard néon — couleur signature */
-  --primary: oklch(0.78 0.12 200);
-  --primary-foreground: oklch(0.16 0.03 215);
-  --secondary: oklch(0.28 0.03 215);
-  --secondary-foreground: oklch(0.93 0.025 200);
-  --muted: oklch(0.25 0.025 215);
-  --muted-foreground: oklch(0.68 0.03 205);
-  /* ambre d'alerte pour les accents "bombe" */
-  --accent: oklch(0.82 0.15 80);
-  --accent-foreground: oklch(0.16 0.02 80);
-  --destructive: oklch(0.63 0.24 25);
-  --border: oklch(0.34 0.03 210 / 70%);
-  --input: oklch(0.3 0.03 215);
-  --ring: oklch(0.78 0.12 200);
-  --chart-1: oklch(0.78 0.12 200);
-  --chart-2: oklch(0.82 0.15 80);
-  --chart-3: oklch(0.7 0.13 230);
-  --chart-4: oklch(0.65 0.2 320);
-  --chart-5: oklch(0.6 0.12 30);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.2 0.028 215);
-  --sidebar-foreground: oklch(0.92 0.025 200);
-  --sidebar-primary: oklch(0.78 0.12 200);
-  --sidebar-primary-foreground: oklch(0.16 0.03 215);
-  --sidebar-accent: oklch(0.28 0.03 215);
-  --sidebar-accent-foreground: oklch(0.93 0.025 200);
-  --sidebar-border: oklch(0.34 0.03 210 / 70%);
-  --sidebar-ring: oklch(0.78 0.12 200);
+  /* Marque, réutilisable partout (canvas, shaders, confettis…). */
+  --electra-petrol: #0b2936;
+  --electra-petrol-deep: #08222e;
+  --electra-mint: #43f5b9;
+  --electra-mint-soft: #b9ffe6;
+  --electra-ice: #e7fffc;
+  --electra-orange: #ff7a00;
+
+  --background: #08222e;
+  --foreground: #e7fffc;
+  --card: #0b2936;
+  --card-foreground: #e7fffc;
+  --popover: #0b2936;
+  --popover-foreground: #e7fffc;
+  /* menthe électrique — couleur signature */
+  --primary: #43f5b9;
+  --primary-foreground: #08222e;
+  --secondary: #123746;
+  --secondary-foreground: #d9fef2;
+  --muted: #10333f;
+  --muted-foreground: #8fb8b4;
+  /* orange « charge » pour les accents bombe */
+  --accent: #ff7a00;
+  --accent-foreground: #14100a;
+  --destructive: #ff5940;
+  --border: color-mix(in oklab, #43f5b9 22%, #0b2936);
+  --input: #123746;
+  --ring: #43f5b9;
+  --chart-1: #43f5b9;
+  --chart-2: #ff7a00;
+  --chart-3: #4fb7ff;
+  --chart-4: #ffe2bc;
+  --chart-5: #ff5940;
+  --radius: 0.625rem;
+  --sidebar: #0b2936;
+  --sidebar-foreground: #e7fffc;
+  --sidebar-primary: #43f5b9;
+  --sidebar-primary-foreground: #08222e;
+  --sidebar-accent: #123746;
+  --sidebar-accent-foreground: #d9fef2;
+  --sidebar-border: color-mix(in oklab, #43f5b9 22%, #0b2936);
+  --sidebar-ring: #43f5b9;
 }
 
 /* ----------------------------------------------------------------------------
- * Scope APPRENTISSAGE — surface claire, élégante, bleu canard profond.
- * Appliquer `.theme-learn` sur un conteneur : toute la palette est réécrite
- * localement (les composants shadcn suivent automatiquement).
+ * Scope APPRENTISSAGE — surface claire glacée, pétrole en texte,
+ * menthe en énergie. Les composants shadcn suivent automatiquement.
  * -------------------------------------------------------------------------- */
 .theme-learn {
-  --background: oklch(0.98 0.008 200);
-  --foreground: oklch(0.29 0.045 220);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.29 0.045 220);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.29 0.045 220);
-  --primary: oklch(0.47 0.09 215); /* bleu canard profond */
-  --primary-foreground: oklch(0.99 0.005 200);
-  --secondary: oklch(0.92 0.02 205);
-  --secondary-foreground: oklch(0.32 0.05 220);
-  --muted: oklch(0.94 0.012 205);
-  --muted-foreground: oklch(0.48 0.035 220);
-  --accent: oklch(0.6 0.1 200);
-  --accent-foreground: oklch(0.99 0.005 200);
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.87 0.02 210);
-  --input: oklch(0.9 0.02 210);
-  --ring: oklch(0.47 0.09 215);
+  --background: #f4faf8;
+  --foreground: #0b2936;
+  --card: #ffffff;
+  --card-foreground: #0b2936;
+  --popover: #ffffff;
+  --popover-foreground: #0b2936;
+  /* pétrole profond : texte fort, boutons pleins (AA sur blanc) */
+  --primary: #0b2936;
+  --primary-foreground: #e7fffc;
+  --secondary: #dff5ec;
+  --secondary-foreground: #0b2936;
+  --muted: #e8f3ef;
+  --muted-foreground: #46656d;
+  /* menthe : jauges, surlignages, énergie (toujours avec texte pétrole) */
+  --accent: #43f5b9;
+  --accent-foreground: #0b2936;
+  --destructive: #cf3a22;
+  --border: #cfe5dd;
+  --input: #d9ebe4;
+  --ring: #0fbf8a;
 
   color: var(--foreground);
   background-color: var(--background);
@@ -125,9 +137,9 @@
 .theme-learn h1,
 .theme-learn h2,
 .theme-learn h3,
-.theme-learn .font-elegant {
-  font-family: var(--font-elegant), Georgia, serif;
-  letter-spacing: -0.01em;
+.font-elegant {
+  font-family: var(--font-elegant), "Space Grotesk", system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 @layer base {
@@ -136,31 +148,42 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground;
-    /* grille + lueur d'écran de terminal (partie cyber) */
+    /* grille énergétique + lueur (partie cyber) */
     background-image:
-      radial-gradient(
-        ellipse at top,
-        oklch(0.78 0.12 200 / 9%),
-        transparent 60%
-      ),
-      linear-gradient(oklch(0.78 0.12 200 / 3.5%) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.78 0.12 200 / 3.5%) 1px, transparent 1px);
-    background-size: 100% 100%, 44px 44px, 44px 44px;
+      radial-gradient(ellipse at top, rgb(67 245 185 / 8%), transparent 60%),
+      linear-gradient(rgb(67 245 185 / 3.5%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(67 245 185 / 3.5%) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      44px 44px,
+      44px 44px;
     background-attachment: fixed;
+  }
+  /* Focus clavier : anneau menthe 2px, partout. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Chiffres XP/stats alignés. */
+  .tabular-nums,
+  number-flow-react {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
   .terminal-glow {
     box-shadow:
-      0 0 0 1px oklch(0.78 0.12 200 / 25%),
-      0 0 40px oklch(0.78 0.12 200 / 8%);
+      0 0 0 1px rgb(67 245 185 / 25%),
+      0 0 40px rgb(67 245 185 / 8%);
   }
   .text-glow {
-    text-shadow: 0 0 12px oklch(0.78 0.12 200 / 45%);
+    text-shadow: 0 0 14px rgb(67 245 185 / 50%);
   }
   .blink::after {
     content: "▋";
@@ -173,11 +196,150 @@
     }
   }
 
+  /* --- Titre hero fluide ---------------------------------------------------- */
+  .hero-title {
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  /* --- Lien de nav : underline animé (scaleX origin-left) ------------------- */
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 2px;
+    background: var(--electra-mint);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms ease;
+  }
+  .nav-underline:hover::after,
+  .nav-underline[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+
+  /* --- Bouton « charge » : remplissage liquide gauche → droite --------------- */
+  .btn-charge {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 220ms ease, box-shadow 220ms ease;
+  }
+  .btn-charge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--electra-mint);
+    transform: translateX(-101%);
+    transition: transform 260ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .btn-charge:hover {
+    color: var(--electra-petrol-deep);
+    box-shadow: 0 0 24px rgb(67 245 185 / 35%);
+  }
+  .btn-charge:hover::before {
+    transform: translateX(0);
+  }
+
+  /* --- Carte spotlight : halo qui suit le curseur (via --x/--y en JS) -------- */
+  .spotlight-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .spotlight-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 250ms ease;
+    background: radial-gradient(
+      280px circle at var(--x, 50%) var(--y, 50%),
+      rgb(67 245 185 / 14%),
+      transparent 65%
+    );
+  }
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+
+  /* --- Badge débloqué : shine sweep au hover --------------------------------- */
+  .shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40%;
+    left: -60%;
+    background: linear-gradient(
+      105deg,
+      transparent,
+      rgb(255 255 255 / 55%),
+      transparent
+    );
+    transform: skewX(-20deg);
+  }
+  .shine:hover::after {
+    animation: shine-sweep 650ms ease;
+  }
+  @keyframes shine-sweep {
+    to {
+      left: 130%;
+    }
+  }
+
+  /* --- Flip 3D des cartes-concepts ------------------------------------------ */
+  .flip-scene {
+    perspective: 1000px;
+  }
+  .flip-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 500ms cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+  .flip-inner[data-flipped="true"] {
+    transform: rotateY(180deg);
+  }
+  .flip-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+  }
+
+  /* --- Pulse de la grille énergétique (fond hero académie) ------------------- */
+  .energy-pulse {
+    animation: energy-pulse 8s ease-in-out infinite;
+  }
+  @keyframes energy-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
   /* --- Chrono type bombe ------------------------------------------------- */
   .bomb-frame {
     box-shadow:
-      0 0 0 1px oklch(0.82 0.15 80 / 30%),
-      0 0 30px oklch(0.82 0.15 80 / 12%);
+      0 0 0 1px rgb(255 122 0 / 30%),
+      0 0 30px rgb(255 122 0 / 12%);
   }
   .bomb-critical {
     animation: bomb-pulse 1s ease-in-out infinite;
@@ -186,24 +348,64 @@
     0%,
     100% {
       box-shadow:
-        0 0 0 1px oklch(0.63 0.24 25 / 60%),
-        0 0 20px oklch(0.63 0.24 25 / 20%);
-      text-shadow: 0 0 10px oklch(0.63 0.24 25 / 40%);
+        0 0 0 1px rgb(255 89 64 / 60%),
+        0 0 20px rgb(255 89 64 / 20%);
+      text-shadow: 0 0 10px rgb(255 89 64 / 40%);
     }
     50% {
       box-shadow:
-        0 0 0 2px oklch(0.63 0.24 25 / 90%),
-        0 0 45px oklch(0.63 0.24 25 / 55%);
-      text-shadow: 0 0 22px oklch(0.63 0.24 25 / 90%);
+        0 0 0 2px rgb(255 89 64 / 90%),
+        0 0 45px rgb(255 89 64 / 55%);
+      text-shadow: 0 0 22px rgb(255 89 64 / 90%);
     }
   }
+  /* --- Secousse « accès refusé » (arcade) -------------------------------- */
+  .shake {
+    animation: shake 0.45s ease-in-out;
+  }
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-8px);
+    }
+    40% {
+      transform: translateX(8px);
+    }
+    60% {
+      transform: translateX(-5px);
+    }
+    80% {
+      transform: translateX(5px);
+    }
+  }
+
   .scanline {
     background: repeating-linear-gradient(
       0deg,
-      oklch(1 0 0 / 3%) 0px,
-      oklch(1 0 0 / 3%) 1px,
+      rgb(255 255 255 / 3%) 0px,
+      rgb(255 255 255 / 3%) 1px,
       transparent 1px,
       transparent 3px
     );
+  }
+}
+
+/* ============================================================================
+ * ACCESSIBILITÉ — prefers-reduced-motion : contrat, pas option.
+ * Les composants JS (canvas, confettis, Motion) vérifient aussi ce média.
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

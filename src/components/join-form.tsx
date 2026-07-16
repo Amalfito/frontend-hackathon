@@ -4,19 +4,22 @@ import { useActionState } from "react";
 import { joinTeam, type JoinState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/components/i18n-provider";
 
 const initial: JoinState = {};
 
-export function JoinForm() {
+export function JoinForm({ next }: { next?: string }) {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(joinTeam, initial);
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
+      {next && <input type="hidden" name="next" value={next} />}
       <label
         htmlFor="team"
         className="font-mono text-xs uppercase tracking-widest text-muted-foreground"
       >
-        &gt; Identifiant d&apos;équipe
+        {t.join.label}
       </label>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Input
@@ -25,7 +28,7 @@ export function JoinForm() {
           required
           maxLength={40}
           autoComplete="off"
-          placeholder="ex: les-decrypteurs"
+          placeholder={t.join.placeholder}
           className="font-mono"
         />
         <Button
@@ -33,7 +36,7 @@ export function JoinForm() {
           disabled={pending}
           className="font-mono uppercase tracking-wider whitespace-nowrap"
         >
-          {pending ? "Connexion…" : "Initialiser ▸"}
+          {pending ? t.join.connecting : t.join.submit}
         </Button>
       </div>
       {state.error && (

@@ -1,0 +1,30 @@
+# logs_incident.txt — extrait FICTIF (Electra AI Academy)
+# Supervision réseau, station Rennes-Alma, 2026-07-02. Un pattern se cache ici.
+
+2026-07-02T06:12:04Z rennes-alma cp-03 INFO  session_start id=s-88121 connector=CCS2 soc=22%
+2026-07-02T06:41:19Z rennes-alma cp-03 INFO  session_end   id=s-88121 kwh=41.2 status=OK
+2026-07-02T07:02:11Z rennes-alma cp-05 INFO  session_start id=s-88134 connector=CCS2 soc=18%
+2026-07-02T07:02:58Z rennes-alma cp-05 ERROR insulation_check_failed id=s-88134 code=E42
+2026-07-02T07:03:01Z rennes-alma cp-05 WARN  session_abort id=s-88134 kwh=0.1 status=FAULT
+2026-07-02T07:18:40Z rennes-alma cp-02 INFO  session_start id=s-88139 connector=CCS2 soc=45%
+2026-07-02T07:52:13Z rennes-alma cp-02 INFO  session_end   id=s-88139 kwh=28.6 status=OK
+2026-07-02T08:04:22Z rennes-alma cp-05 INFO  session_start id=s-88151 connector=CCS2 soc=31%
+2026-07-02T08:05:07Z rennes-alma cp-05 ERROR insulation_check_failed id=s-88151 code=E42
+2026-07-02T08:05:10Z rennes-alma cp-05 WARN  session_abort id=s-88151 kwh=0.1 status=FAULT
+2026-07-02T08:31:55Z rennes-alma cp-01 INFO  session_start id=s-88160 connector=CCS2 soc=12%
+2026-07-02T09:00:02Z rennes-alma cp-01 INFO  session_end   id=s-88160 kwh=52.8 status=OK
+2026-07-02T09:14:30Z rennes-alma cp-05 INFO  session_start id=s-88171 connector=CHAdeMO soc=40%
+2026-07-02T09:44:12Z rennes-alma cp-05 INFO  session_end   id=s-88171 kwh=19.4 status=OK
+2026-07-02T10:22:09Z rennes-alma cp-05 INFO  session_start id=s-88183 connector=CCS2 soc=25%
+2026-07-02T10:22:51Z rennes-alma cp-05 ERROR insulation_check_failed id=s-88183 code=E42
+2026-07-02T10:22:54Z rennes-alma cp-05 WARN  session_abort id=s-88183 kwh=0.1 status=FAULT
+2026-07-02T10:40:17Z rennes-alma cp-04 INFO  session_start id=s-88188 connector=CCS2 soc=8%
+2026-07-02T11:12:44Z rennes-alma cp-04 INFO  session_end   id=s-88188 kwh=61.0 status=OK
+2026-07-02T11:30:26Z rennes-alma cp-05 INFO  session_start id=s-88197 connector=CCS2 soc=52%
+2026-07-02T11:31:08Z rennes-alma cp-05 ERROR insulation_check_failed id=s-88197 code=E42
+2026-07-02T11:31:11Z rennes-alma cp-05 WARN  session_abort id=s-88197 kwh=0.1 status=FAULT
+2026-07-02T11:31:15Z rennes-alma cp-05 INFO  selftest_scheduled reason=fault_threshold count=4/24h
+
+# Indice (à ne pas donner tout de suite aux apprenants) : cp-05 échoue
+# systématiquement le contrôle d'isolement en CCS2 (E42) mais fonctionne en
+# CHAdeMO → suspicion câble/connecteur CCS2, pas l'électronique de puissance.

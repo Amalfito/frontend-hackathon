@@ -5,16 +5,31 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import {
-  TEAM_COOKIE,
-  ADMIN_COOKIE,
-  COOKIE_MAX_AGE,
-} from "@/lib/constants";
+import { TEAM_COOKIE, ADMIN_COOKIE, COOKIE_MAX_AGE } from "@/lib/constants";
+import { getDict, normalizeLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
+import { getLocale } from "@/lib/locale";
 import type { GameState, QuizGrade } from "@/lib/types";
 
 export type JoinState = { error?: string };
 export type SubmitState = { ok?: boolean; message?: string };
 export type AdminLoginState = { error?: string };
+
+/* ==========================================================================
+ * LANGUE
+ * ======================================================================== */
+/** Mémorise la langue choisie (cookie). Le client appelle router.refresh() ensuite. */
+export async function setLocale(locale: string): Promise<void> {
+  const c = await cookies();
+  c.set(LOCALE_COOKIE, normalizeLocale(locale), {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+}
+
+async function dict() {
+  return getDict(await getLocale());
+}
 
 /* ==========================================================================
  * ÉQUIPES / DÉFIS
@@ -25,22 +40,22 @@ export async function joinTeam(
   _prev: JoinState,
   formData: FormData,
 ): Promise<JoinState> {
+  const t = await dict();
   const name = String(formData.get("team") ?? "").trim();
-  if (!name) return { error: "Nom d'équipe requis." };
-  if (name.length > 40) return { error: "Nom trop long (40 caractères max)." };
+  if (!name) return { error: t.errors.teamRequired };
+  if (name.length > 40) return { error: t.errors.teamTooLong };
 
   let data: { id?: string; error?: string } | null = null;
   try {
     const supabase = createAdminClient();
     const res = await supabase.rpc("join_team", { p_name: name });
-    if (res.error) return { error: `Erreur base : ${res.error.message}` };
+    if (res.error) return { error: res.error.message };
     data = res.data;
   } catch (e) {
-    // Config manquante / client injoignable → message visible au lieu d'un 500.
-    return { error: e instanceof Error ? e.message : "Erreur serveur inconnue." };
+    return { error: e instanceof Error ? e.message : t.errors.serverUnknown };
   }
-  if (data?.error) return { error: "Nom d'équipe invalide." };
-  if (!data?.id) return { error: "Réponse inattendue de la base (RPC join_team)." };
+  if (data?.error) return { error: t.errors.teamInvalid };
+  if (!data?.id) return { error: t.errors.unexpected };
 
   const c = await cookies();
   c.set(TEAM_COOKIE, data.id, {
@@ -51,21 +66,17 @@ export async function joinTeam(
     secure: process.env.NODE_ENV === "production",
   });
 
-  redirect("/play");
+  // Destination post-connexion (champ caché "next"), /play par défaut.
+  const next = String(formData.get("next") ?? "");
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/play");
 }
-
-const SUBMIT_ERRORS: Record<string, string> = {
-  game_locked: "JEU EN PAUSE — le maître du jeu a gelé les soumissions.",
-  time_up: "⏱ TEMPS ÉCOULÉ — la bombe a explosé. Attendez les consignes.",
-  team_not_found: "Équipe introuvable.",
-  stage_not_found: "Étape introuvable.",
-};
 
 /** Valide une réponse pour l'étape courante. Avance si correcte. */
 export async function submitAnswer(
   _prev: SubmitState,
   formData: FormData,
 ): Promise<SubmitState> {
+  const t = await dict();
   const slug = String(formData.get("slug") ?? "");
   const answer = String(formData.get("answer") ?? "");
 
@@ -80,15 +91,13 @@ export async function submitAnswer(
     p_answer: answer,
   });
 
-  if (error) return { ok: false, message: `Erreur serveur : ${error.message}` };
+  if (error) return { ok: false, message: error.message };
   if (data?.error) {
-    return { ok: false, message: SUBMIT_ERRORS[data.error] ?? "Erreur inconnue." };
+    const key = data.error as keyof typeof t.errors;
+    return { ok: false, message: t.errors[key] ?? t.errors.unknown };
   }
-  if (!data.correct) {
-    return { ok: false, message: "ACCÈS REFUSÉ — réponse incorrecte. Réessayez." };
-  }
+  if (!data.correct) return { ok: false, message: t.errors.wrongAnswer };
 
-  // Réponse correcte : on recharge /play (étape suivante ou victoire).
   redirect("/play");
 }
 
@@ -106,6 +115,7 @@ export async function gradeQuiz(
   questionId: string,
   optionIds: string[],
 ): Promise<QuizGrade | { error: string }> {
+  const locale: Locale = await getLocale();
   const c = await cookies();
   const teamId = c.get(TEAM_COOKIE)?.value ?? null;
 
@@ -114,6 +124,7 @@ export async function gradeQuiz(
     p_team_id: teamId,
     p_question_id: questionId,
     p_option_ids: optionIds,
+    p_locale: locale,
   });
 
   if (error) return { error: error.message };
@@ -132,9 +143,10 @@ export async function adminLogin(
   _prev: AdminLoginState,
   formData: FormData,
 ): Promise<AdminLoginState> {
+  const t = await dict();
   const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  if (!username || !password) return { error: "Identifiants requis." };
+  if (!username || !password) return { error: t.errors.credentialsRequired };
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("admin_login", {
@@ -142,8 +154,8 @@ export async function adminLogin(
     p_password: password,
   });
 
-  if (error) return { error: `Erreur serveur : ${error.message}` };
-  if (data?.error) return { error: "Identifiants invalides." };
+  if (error) return { error: error.message };
+  if (data?.error) return { error: t.errors.credentialsInvalid };
 
   const c = await cookies();
   c.set(ADMIN_COOKIE, data.id, {

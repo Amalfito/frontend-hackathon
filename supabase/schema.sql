@@ -850,9 +850,9 @@ select public.set_stage(1, 'quiz-agentique', 'quiz',
 
 select public.set_stage(2, 'chiffre-albert', 'cipher',
   'DÉCHIFFREMENT · Le message d''Albert',
-  'Albert chiffre ses messages avec un alphabet de symboles. Branchez votre agent sur la base de symboles et décodez.',
-  '⏃ ⏚ ⏄ ⏁ ⍀ ⏃ — quel mot se cache derrière ces symboles ?',
-  '6 lettres. Le nom d''une entreprise que vous connaissez bien.', 150, 'electra');
+  'Albert chiffre ses messages avec un alphabet de symboles. Branchez votre agent sur la base de symboles (fournie par le maître du jeu) et décodez.',
+  '⏃ ⏄ ⏃ ⌂ ⍜ ⍀ ⎔ — quel mot se cache derrière ces symboles ?',
+  '7 lettres. Le nom d''une entreprise que vous connaissez bien. Un symbole se répète.', 150, 'electra');
 
 select public.set_stage(3, 'mdp-uptime', 'password',
   'MODULE 1 · Premier fusible',

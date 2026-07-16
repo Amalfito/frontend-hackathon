@@ -13,9 +13,11 @@ import {
 import { BombTimer } from "@/components/bomb-timer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/components/i18n-provider";
 import type { GameState } from "@/lib/types";
 
 export function AdminControls({ state }: { state: GameState | null }) {
+  const { t } = useI18n();
   const status = state?.status ?? "idle";
   const running = status === "running";
   const paused = status === "paused" || status === "stopped";
@@ -27,7 +29,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
       {/* Armement */}
       <form action={gameArm} className="flex flex-col gap-2">
         <label className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          &gt; Armer la bombe (durée en minutes)
+          {t.admin.armLabel}
         </label>
         <div className="flex gap-2">
           <Input
@@ -38,7 +40,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             className="w-32 font-mono"
           />
           <Button type="submit" className="font-mono uppercase tracking-wider">
-            ◉ Armer
+            {t.admin.arm}
           </Button>
         </div>
       </form>
@@ -52,7 +54,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             disabled={!running}
             className="font-mono uppercase tracking-wider"
           >
-            ⏸ Pause
+            {t.admin.pause}
           </Button>
         </form>
         <form action={gameResume}>
@@ -62,7 +64,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             disabled={!paused}
             className="font-mono uppercase tracking-wider"
           >
-            ▶ Reprendre
+            {t.admin.resume}
           </Button>
         </form>
         <form action={gameStop}>
@@ -71,7 +73,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             variant="destructive"
             className="font-mono uppercase tracking-wider"
           >
-            ■ STOP (geler le jeu)
+            {t.admin.stop}
           </Button>
         </form>
         <form action={gameDefuse}>
@@ -80,7 +82,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             variant="outline"
             className="border-primary/50 font-mono uppercase tracking-wider text-primary"
           >
-            ✔ Désamorcer
+            {t.admin.defuse}
           </Button>
         </form>
         <form action={gameReset}>
@@ -89,7 +91,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             variant="ghost"
             className="font-mono uppercase tracking-wider text-muted-foreground"
           >
-            ↺ Reset
+            {t.admin.reset}
           </Button>
         </form>
       </div>
@@ -103,7 +105,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             variant="outline"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            🔒 Verrouiller
+            {t.admin.lock}
           </Button>
         </form>
         <form action={gameSetLock}>
@@ -113,7 +115,7 @@ export function AdminControls({ state }: { state: GameState | null }) {
             variant="outline"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            🔓 Déverrouiller
+            {t.admin.unlock}
           </Button>
         </form>
       </div>
@@ -121,17 +123,17 @@ export function AdminControls({ state }: { state: GameState | null }) {
       {/* Message diffusé */}
       <form action={gameSetMessage} className="flex flex-col gap-2">
         <label className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          &gt; Message diffusé aux équipes
+          {t.admin.messageLabel}
         </label>
         <div className="flex gap-2">
           <Input
             name="message"
             defaultValue={state?.message ?? ""}
-            placeholder="ex: Indice global débloqué…"
+            placeholder={t.admin.messagePlaceholder}
             className="font-mono"
           />
           <Button type="submit" variant="outline" className="font-mono uppercase">
-            Diffuser
+            {t.admin.broadcast}
           </Button>
         </div>
       </form>

@@ -8,6 +8,7 @@ import { AutoRefresh } from "@/components/auto-refresh";
 import { adminLogout } from "@/app/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_COOKIE } from "@/lib/constants";
+import { getI18n } from "@/lib/locale";
 import type { GameState, Team } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -26,9 +27,9 @@ export default async function AdminPage() {
   const adminId = c.get(ADMIN_COOKIE)?.value;
   if (!adminId) redirect("/admin/login");
 
+  const { t } = await getI18n();
   const supabase = createAdminClient();
 
-  // Vérifie que la session admin est valide (cookie ⇒ admin existant).
   const { data: admin } = await supabase
     .from("admins")
     .select("id,username,display_name")
@@ -56,7 +57,7 @@ export default async function AdminPage() {
       <AutoRefresh intervalMs={5000} />
       <div className="flex items-center justify-between">
         <h1 className="font-mono text-2xl font-bold">
-          <span className="text-primary">›</span> ADMIN · maître du jeu
+          <span className="text-primary">›</span> {t.admin.title}
         </h1>
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs text-muted-foreground">
@@ -68,16 +69,15 @@ export default async function AdminPage() {
               variant="ghost"
               className="font-mono text-xs uppercase tracking-wider text-muted-foreground"
             >
-              Déconnexion
+              {t.admin.logout}
             </Button>
           </form>
         </div>
       </div>
 
-      {/* Contrôle du jeu / bombe */}
       <section className="flex flex-col gap-3">
         <h2 className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
-          Contrôle du jeu
+          {t.admin.gameControl}
         </h2>
         <Card className="terminal-glow border-accent/25">
           <CardContent className="pt-6">
@@ -86,34 +86,36 @@ export default async function AdminPage() {
         </Card>
       </section>
 
-      {/* Supervision équipes */}
       <section className="flex flex-col gap-3">
         <h2 className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
-          Équipes ({teams?.length ?? 0})
+          {t.admin.teams} ({teams?.length ?? 0})
         </h2>
         <div className="grid gap-2 sm:grid-cols-2">
-          {teams?.map((t) => (
-            <Card key={t.id}>
+          {teams?.map((team) => (
+            <Card key={team.id}>
               <CardContent className="flex items-center justify-between py-3 font-mono text-sm">
                 <div>
-                  <p className="font-semibold">{t.name}</p>
+                  <p className="font-semibold">{team.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t.finished_at ? "★ terminé" : `étape ${t.current_stage_order}`}
+                    {team.finished_at
+                      ? t.admin.finished
+                      : `${t.admin.stage} ${team.current_stage_order}`}
                     {" · "}
-                    <span className="text-primary/70">learn {t.learn_score}</span>
+                    <span className="text-primary/70">
+                      {t.admin.learnScore} {team.learn_score}
+                    </span>
                   </p>
                 </div>
-                <span className="text-lg font-bold text-primary">{t.score}</span>
+                <span className="text-lg font-bold text-primary">{team.score}</span>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Journal des tentatives */}
       <section className="flex flex-col gap-3">
         <h2 className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
-          Dernières tentatives
+          {t.admin.attempts}
         </h2>
         <div className="flex flex-col gap-1">
           {attempts?.map((a) => (

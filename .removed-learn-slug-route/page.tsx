@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Markdown } from "@/components/markdown";
 import { QuizRunner, type QuizItem } from "@/components/quiz-runner";
 import { createClient } from "@/lib/supabase/server";
+import { getI18n } from "@/lib/locale";
+import { pick } from "@/lib/i18n";
 import type { Lesson, Quiz, QuizOption, QuizQuestion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +16,7 @@ export default async function LessonPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { locale, t } = await getI18n();
   const supabase = await createClient();
 
   const { data: lesson } = await supabase
@@ -24,7 +27,6 @@ export default async function LessonPage({
 
   if (!lesson) notFound();
 
-  // Quiz lié à cette leçon (s'il existe).
   const { data: quiz } = await supabase
     .from("quizzes_public")
     .select("*")
@@ -52,9 +54,12 @@ export default async function LessonPage({
           .returns<QuizOption[]>()
       : { data: [] as QuizOption[] };
 
+    // Localise le texte avant de le passer au composant client.
     items = (questions ?? []).map((q) => ({
-      question: q,
-      options: (options ?? []).filter((o) => o.question_id === q.id),
+      question: { ...q, question: pick(locale, q.question, q.question_en) },
+      options: (options ?? [])
+        .filter((o) => o.question_id === q.id)
+        .map((o) => ({ ...o, label: pick(locale, o.label, o.label_en) })),
     }));
   }
 
@@ -65,21 +70,23 @@ export default async function LessonPage({
           href="/learn"
           className="font-mono text-xs text-muted-foreground hover:text-primary"
         >
-          ← Tous les modules
+          {t.lesson.allModules}
         </Link>
 
         <article className="rounded-lg border border-border bg-card p-6 sm:p-8">
-          <Markdown content={lesson.content} />
+          <Markdown content={pick(locale, lesson.content, lesson.content_en)} />
         </article>
 
         {items.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="font-elegant text-2xl">
-                {quiz?.title ?? "Quiz"}
+                {pick(locale, quiz?.title ?? t.lesson.quizFallback, quiz?.title_en)}
               </CardTitle>
               {quiz?.description && (
-                <p className="text-sm text-muted-foreground">{quiz.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {pick(locale, quiz.description, quiz.description_en)}
+                </p>
               )}
             </CardHeader>
             <CardContent>
@@ -90,10 +97,10 @@ export default async function LessonPage({
 
         <div className="flex items-center justify-between text-sm">
           <Link href="/learn" className="text-muted-foreground hover:text-primary">
-            ← Modules
+            {t.lesson.modules}
           </Link>
           <Link href="/play" className="font-semibold text-primary hover:underline">
-            Passer aux défis →
+            {t.lesson.toChallenges}
           </Link>
         </div>
       </div>

@@ -4,10 +4,12 @@ import { useActionState } from "react";
 import { adminLogin, type AdminLoginState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/components/i18n-provider";
 
 const initial: AdminLoginState = {};
 
 export function AdminLoginForm() {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(adminLogin, initial);
 
   return (
@@ -17,7 +19,7 @@ export function AdminLoginForm() {
           htmlFor="username"
           className="font-mono text-xs uppercase tracking-widest text-muted-foreground"
         >
-          &gt; Identifiant
+          {t.adminLogin.username}
         </label>
         <Input
           id="username"
@@ -34,7 +36,7 @@ export function AdminLoginForm() {
           htmlFor="password"
           className="font-mono text-xs uppercase tracking-widest text-muted-foreground"
         >
-          &gt; Mot de passe
+          {t.adminLogin.password}
         </label>
         <Input
           id="password"
@@ -50,7 +52,7 @@ export function AdminLoginForm() {
         disabled={pending}
         className="font-mono uppercase tracking-wider"
       >
-        {pending ? "Authentification…" : "Accès maître du jeu ▸"}
+        {pending ? t.adminLogin.authenticating : t.adminLogin.submit}
       </Button>
       {state.error && (
         <p className="font-mono text-sm text-destructive">/!\ {state.error}</p>

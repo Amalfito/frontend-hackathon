@@ -1,0 +1,212 @@
+[
+  {
+    "id": "TCK-001",
+    "date": "2026-07-10",
+    "canal": "chat",
+    "message": "Session lancée via un badge partenaire, jamais apparue dans mon historique.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-002",
+    "date": "2026-07-14",
+    "canal": "chat",
+    "message": "Double prélèvement sur ma session du 6 juin à Lyon-Confluence, merci de vérifier.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-003",
+    "date": "2026-07-02",
+    "canal": "email",
+    "message": "Session lancée via un badge partenaire, jamais apparue dans mon historique.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-004",
+    "date": "2026-07-10",
+    "canal": "chat",
+    "message": "Double prélèvement sur ma session du 25 juin à Marseille-Prado, merci de vérifier.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-005",
+    "date": "2026-07-02",
+    "canal": "appli",
+    "message": "Écran noir sur la borne 4 à Lyon-Confluence, le câble est resté verrouillé !",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-006",
+    "date": "2026-07-09",
+    "canal": "chat",
+    "message": "L'appli plante au moment de lancer la charge, iPhone, version d'hier.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-007",
+    "date": "2026-07-03",
+    "canal": "chat",
+    "message": "Double prélèvement sur ma session du 23 juin à Bordeaux-Lac, merci de vérifier.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-008",
+    "date": "2026-07-10",
+    "canal": "appli",
+    "message": "Ma carte d'opérateur tiers n'est pas reconnue à Strasbourg-Étoile.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-009",
+    "date": "2026-07-08",
+    "canal": "email",
+    "message": "La borne 7 de Bordeaux-Lac affiche une erreur E17, impossible de charger.",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-010",
+    "date": "2026-07-13",
+    "canal": "chat",
+    "message": "Écran noir sur la borne 2 à Marseille-Prado, le câble est resté verrouillé !",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-011",
+    "date": "2026-07-14",
+    "canal": "chat",
+    "message": "Ma carte d'opérateur tiers n'est pas reconnue à Marseille-Prado.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-012",
+    "date": "2026-07-10",
+    "canal": "appli",
+    "message": "L'appli plante au moment de lancer la charge, iPhone, version d'hier.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-013",
+    "date": "2026-07-07",
+    "canal": "email",
+    "message": "Ma carte d'opérateur tiers n'est pas reconnue à Marseille-Prado.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-014",
+    "date": "2026-07-10",
+    "canal": "appli",
+    "message": "Impossible de retrouver mes factures dans l'appli depuis la mise à jour.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-015",
+    "date": "2026-07-10",
+    "canal": "appli",
+    "message": "La borne 5 de Bordeaux-Lac affiche une erreur E90, impossible de charger.",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-016",
+    "date": "2026-07-11",
+    "canal": "email",
+    "message": "La borne 7 de Lyon-Confluence affiche une erreur E17, impossible de charger.",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-017",
+    "date": "2026-07-05",
+    "canal": "appli",
+    "message": "Impossible de retrouver mes factures dans l'appli depuis la mise à jour.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-018",
+    "date": "2026-07-13",
+    "canal": "chat",
+    "message": "Je suis facturé 84.86 € pour une session de 27 minutes, ça me paraît énorme.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-019",
+    "date": "2026-07-02",
+    "canal": "appli",
+    "message": "Double prélèvement sur ma session du 14 juin à Nantes-Atlantis, merci de vérifier.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-020",
+    "date": "2026-07-04",
+    "canal": "chat",
+    "message": "L'appli plante au moment de lancer la charge, iPhone, version d'hier.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-021",
+    "date": "2026-07-14",
+    "canal": "chat",
+    "message": "Écran noir sur la borne 6 à Bordeaux-Lac, le câble est resté verrouillé !",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-022",
+    "date": "2026-07-10",
+    "canal": "chat",
+    "message": "Double prélèvement sur ma session du 4 juin à Nantes-Atlantis, merci de vérifier.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-023",
+    "date": "2026-07-03",
+    "canal": "chat",
+    "message": "Ma carte d'opérateur tiers n'est pas reconnue à Rennes-Alma.",
+    "_solution_categorie": "roaming"
+  },
+  {
+    "id": "TCK-024",
+    "date": "2026-07-10",
+    "canal": "chat",
+    "message": "L'appli plante au moment de lancer la charge, iPhone, version d'hier.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-025",
+    "date": "2026-07-09",
+    "canal": "chat",
+    "message": "La borne 3 de Annecy-Nord affiche une erreur E31, impossible de charger.",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-026",
+    "date": "2026-07-07",
+    "canal": "appli",
+    "message": "Impossible de retrouver mes factures dans l'appli depuis la mise à jour.",
+    "_solution_categorie": "appli"
+  },
+  {
+    "id": "TCK-027",
+    "date": "2026-07-12",
+    "canal": "email",
+    "message": "La borne 1 de Nantes-Atlantis affiche une erreur E58, impossible de charger.",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-028",
+    "date": "2026-07-03",
+    "canal": "chat",
+    "message": "Je suis facturé 36.73 € pour une session de 8 minutes, ça me paraît énorme.",
+    "_solution_categorie": "facturation"
+  },
+  {
+    "id": "TCK-029",
+    "date": "2026-07-01",
+    "canal": "appli",
+    "message": "Écran noir sur la borne 3 à Toulouse-Blagnac, le câble est resté verrouillé !",
+    "_solution_categorie": "panne"
+  },
+  {
+    "id": "TCK-030",
+    "date": "2026-07-03",
+    "canal": "chat",
+    "message": "Je suis facturé 40.19 € pour une session de 10 minutes, ça me paraît énorme.",
+    "_solution_categorie": "facturation"
+  }
+]

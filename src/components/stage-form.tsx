@@ -4,16 +4,10 @@ import { useActionState, useState } from "react";
 import { submitAnswer, type SubmitState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/components/i18n-provider";
 import type { StageType } from "@/lib/types";
 
 const initial: SubmitState = {};
-
-const PLACEHOLDER: Record<StageType, string> = {
-  quiz: "votre réponse…",
-  cipher: "mot déchiffré…",
-  password: "mot de passe…",
-  final: "code de désamorçage…",
-};
 
 export function StageForm({
   slug,
@@ -24,6 +18,7 @@ export function StageForm({
   type: StageType;
   hint: string;
 }) {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(submitAnswer, initial);
   const [showHint, setShowHint] = useState(false);
 
@@ -37,7 +32,7 @@ export function StageForm({
             required
             autoComplete="off"
             autoFocus
-            placeholder={PLACEHOLDER[type]}
+            placeholder={t.stage.placeholder[type]}
             className="font-mono text-base"
           />
           <Button
@@ -45,7 +40,7 @@ export function StageForm({
             disabled={pending}
             className="font-mono uppercase tracking-wider whitespace-nowrap"
           >
-            {pending ? "Vérification…" : "Valider ▸"}
+            {pending ? t.stage.verifying : t.stage.submit}
           </Button>
         </div>
         {state.message && !state.ok && (
@@ -57,7 +52,7 @@ export function StageForm({
         <div className="font-mono text-xs">
           {showHint ? (
             <p className="text-accent">
-              <span className="text-muted-foreground">{"// indice : "}</span>
+              <span className="text-muted-foreground">{t.stage.hintPrefix}</span>
               {hint}
             </p>
           ) : (
@@ -66,7 +61,7 @@ export function StageForm({
               onClick={() => setShowHint(true)}
               className="text-muted-foreground underline underline-offset-4 hover:text-accent"
             >
-              Révéler l&apos;indice
+              {t.stage.revealHint}
             </button>
           )}
         </div>

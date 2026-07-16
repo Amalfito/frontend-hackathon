@@ -5,44 +5,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { StageForm } from "@/components/stage-form";
-import { BombTimer } from "@/components/bomb-timer";
 import { leaveTeam } from "@/app/actions";
 import { createClient } from "@/lib/supabase/server";
 import { TEAM_COOKIE } from "@/lib/constants";
-import type { GameState, PublicStage, Team } from "@/lib/types";
+import { getI18n } from "@/lib/locale";
+import { pick } from "@/lib/i18n";
+import type { PublicStage, Team } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-const TYPE_LABEL: Record<PublicStage["type"], string> = {
-  quiz: "QUIZ",
-  cipher: "CHIFFREMENT",
-  password: "MOT DE PASSE",
-  final: "DÉSAMORÇAGE",
-};
-
-function SetupNotice({ detail }: { detail: string }) {
-  return (
-    <Card className="mx-auto max-w-2xl border-destructive/40">
-      <CardHeader>
-        <CardTitle className="font-mono text-destructive">
-          Supabase non configuré
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2 font-mono text-sm text-muted-foreground">
-        <p>
-          Renseigne les clés dans <code className="text-accent">.env.local</code> et
-          exécute les migrations (voir <code className="text-accent">README.md</code>).
-        </p>
-        <p className="text-xs opacity-70">Détail : {detail}</p>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default async function PlayPage() {
   const c = await cookies();
   const teamId = c.get(TEAM_COOKIE)?.value;
   if (!teamId) redirect("/");
+
+  const { locale, t } = await getI18n();
+
+  function SetupNotice({ detail }: { detail: string }) {
+    return (
+      <Card className="mx-auto max-w-2xl border-destructive/40">
+        <CardHeader>
+          <CardTitle className="font-mono text-destructive">
+            {t.play.setupTitle}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 font-mono text-sm text-muted-foreground">
+          <p>{t.play.setupBody}</p>
+          <p className="text-xs opacity-70">
+            {t.play.setupDetail} : {detail}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const supabase = await createClient();
 
@@ -53,10 +48,7 @@ export default async function PlayPage() {
     .maybeSingle<Team>();
 
   if (teamErr) return <SetupNotice detail={teamErr.message} />;
-  if (!team) {
-    // Cookie orphelin (équipe supprimée / autre base) → on repart de zéro.
-    redirect("/");
-  }
+  if (!team) redirect("/");
 
   const { data: maxRow } = await supabase
     .from("stages_public")
@@ -64,11 +56,6 @@ export default async function PlayPage() {
     .order("stage_order", { ascending: false })
     .limit(1)
     .maybeSingle<{ stage_order: number }>();
-
-  const { data: game } = await supabase
-    .from("game_state_public")
-    .select("*")
-    .maybeSingle<GameState>();
 
   const maxOrder = maxRow?.stage_order ?? 0;
   const solved = Math.max(0, team.current_stage_order - 1);
@@ -80,13 +67,13 @@ export default async function PlayPage() {
         <Card className="terminal-glow border-primary/40">
           <CardContent className="flex flex-col items-center gap-4 pt-8 text-center">
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
-              {"// MISSION ACCOMPLIE"}
+              {t.play.missionComplete}
             </p>
             <h1 className="font-mono text-3xl font-bold text-primary text-glow">
-              ALBERT NEUTRALISÉ
+              {t.play.albertNeutralized}
             </h1>
             <p className="font-mono text-sm text-muted-foreground">
-              Les données sont sauvées. Score final de l&apos;équipe{" "}
+              {t.play.finalScorePre}{" "}
               <span className="text-foreground">{team.name}</span> :
             </p>
             <p className="font-mono text-5xl font-bold text-accent">{team.score}</p>
@@ -96,7 +83,7 @@ export default async function PlayPage() {
                 className: "mt-2 font-mono uppercase tracking-wider",
               })}
             >
-              Voir le classement ▸
+              {t.play.viewLeaderboard}
             </Link>
           </CardContent>
         </Card>
@@ -111,24 +98,21 @@ export default async function PlayPage() {
     .maybeSingle<PublicStage>();
 
   if (stageErr) return <SetupNotice detail={stageErr.message} />;
-  if (!stage) {
-    return (
-      <SetupNotice detail="Aucune étape trouvée. As-tu exécuté supabase/seed.sql ?" />
-    );
-  }
+  if (!stage) return <SetupNotice detail={t.play.noStage} />;
+
+  const title = pick(locale, stage.title, stage.title_en);
+  const narrative = pick(locale, stage.narrative, stage.narrative_en);
+  const prompt = pick(locale, stage.prompt, stage.prompt_en);
+  const hint = pick(locale, stage.hint, stage.hint_en);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      {/* Chrono type bombe (piloté par l'admin) */}
-      <BombTimer initial={game ?? null} variant="full" />
-
-      {/* Barre de progression */}
       <div className="flex items-center justify-between font-mono text-xs text-muted-foreground">
         <span>
-          ÉQUIPE <span className="text-primary">{team.name}</span>
+          {t.play.team} <span className="text-primary">{team.name}</span>
         </span>
         <span>
-          SCORE <span className="text-accent">{team.score}</span>
+          {t.play.score} <span className="text-accent">{team.score}</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -148,22 +132,22 @@ export default async function PlayPage() {
 
       <Card className="terminal-glow border-primary/25">
         <CardHeader className="flex flex-row items-center justify-between gap-4">
-          <CardTitle className="font-mono text-lg">{stage.title}</CardTitle>
+          <CardTitle className="font-mono text-lg">{title}</CardTitle>
           <Badge
             variant="outline"
             className="shrink-0 border-primary/40 font-mono text-[10px] text-primary"
           >
-            {TYPE_LABEL[stage.type]} · {stage.points} PTS
+            {t.play.type[stage.type]} · {stage.points} PTS
           </Badge>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <p className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-            {stage.narrative}
+            {narrative}
           </p>
           <p className="font-mono text-base leading-relaxed whitespace-pre-wrap text-foreground">
-            {stage.prompt}
+            {prompt}
           </p>
-          <StageForm slug={stage.slug} type={stage.type} hint={stage.hint} />
+          <StageForm slug={stage.slug} type={stage.type} hint={hint} />
         </CardContent>
       </Card>
 
@@ -172,7 +156,7 @@ export default async function PlayPage() {
           type="submit"
           className="font-mono text-xs text-muted-foreground underline underline-offset-4 hover:text-destructive"
         >
-          Abandonner / changer d&apos;équipe
+          {t.play.abandon}
         </button>
       </form>
     </div>

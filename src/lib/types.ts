@@ -7,6 +7,10 @@ export type PublicStage = {
   slug: string;
   type: StageType;
   title: string;
+  title_en?: string | null;
+  narrative_en?: string | null;
+  prompt_en?: string | null;
+  hint_en?: string | null;
   narrative: string;
   prompt: string;
   hint: string;
@@ -52,6 +56,9 @@ export type Lesson = {
   title: string;
   summary: string;
   content: string;
+  title_en?: string | null;
+  summary_en?: string | null;
+  content_en?: string | null;
   icon: string;
   estimated_minutes: number;
 };
@@ -63,6 +70,8 @@ export type Quiz = {
   lesson_slug: string | null;
   title: string;
   description: string;
+  title_en?: string | null;
+  description_en?: string | null;
   order_index: number;
 };
 
@@ -72,6 +81,7 @@ export type QuizQuestion = {
   qkey: string;
   order_index: number;
   question: string;
+  question_en?: string | null;
   question_type: "single" | "multiple";
   points: number;
 };
@@ -81,6 +91,7 @@ export type QuizOption = {
   question_id: string;
   order_index: number;
   label: string;
+  label_en?: string | null;
 };
 
 /** Réponse de la RPC `grade_quiz_question` (bonnes options révélées après coup). */

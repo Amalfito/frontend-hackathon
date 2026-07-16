@@ -1,88 +1,75 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { JoinForm } from "@/components/join-form";
-import { leaveTeam } from "@/app/actions";
-import { TEAM_COOKIE } from "@/lib/constants";
+import { ElectraBolt } from "@/components/brand/electra-logo";
 
-export default async function HomePage() {
-  const c = await cookies();
-  const hasTeam = Boolean(c.get(TEAM_COOKIE)?.value);
-
+/**
+ * Portail d'entrée : DEUX choix, rien d'autre.
+ * L'escape game (Arcade Albert) ou la Knowledge Base.
+ */
+export default function HomePage() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary text-glow">
-          Electra · Network Operations
+    <div className="mx-auto flex min-h-[62vh] max-w-4xl flex-col justify-center gap-10 py-8">
+      <header className="flex flex-col items-center gap-3 text-center">
+        <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-primary text-glow">
+          <ElectraBolt className="h-4 w-4" /> Electra · Hackathon IA
         </p>
-        <h1 className="font-mono text-3xl font-bold tracking-tight sm:text-4xl">
-          OPERATION <span className="text-primary text-glow blink">ALBERT</span>
+        <h1 className="hero-title font-elegant font-semibold">
+          OPÉRATION <span className="text-primary text-glow blink">ALBERT</span>
         </h1>
+        <p className="max-w-lg font-mono text-sm text-muted-foreground">
+          Un agent IA renégat. Un réseau à reprendre. Deux portes.
+        </p>
+      </header>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {/* Porte 1 — Escape Game */}
+        <Link
+          href="/game"
+          className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border-2 border-accent/50 bg-card p-8 transition-all hover:-translate-y-1 hover:border-accent hover:shadow-[0_0_50px_rgb(255_122_0/0.25)]"
+        >
+          <span
+            aria-hidden="true"
+            className="scanline pointer-events-none absolute inset-0 opacity-40"
+          />
+          <span className="text-5xl transition-transform group-hover:scale-110">🎮</span>
+          <div>
+            <h2 className="font-elegant text-3xl font-bold text-accent">
+              Escape Game
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              20 verrous de difficulté croissante, des questions piégées à 30
+              secondes, un sabotage par équipe. Traquez Albert, en équipe,
+              contre la montre.
+            </p>
+          </div>
+          <span className="mt-auto font-mono text-xs font-semibold uppercase tracking-wider text-accent">
+            Entrer dans l&apos;arène →
+          </span>
+        </Link>
+
+        {/* Porte 2 — Knowledge Base */}
+        <Link
+          href="/kb"
+          className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border-2 border-primary/50 bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[0_0_50px_rgb(67_245_185/0.25)]"
+        >
+          <span className="text-5xl transition-transform group-hover:scale-110">📚</span>
+          <div>
+            <h2 className="font-elegant text-3xl font-bold text-primary">
+              Knowledge Base
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Tout ce qu&apos;il faut savoir sur Claude, les agents, MCP et n8n —
+              en version académie complète ou en fiches express pour le jeu.
+            </p>
+          </div>
+          <span className="mt-auto font-mono text-xs font-semibold uppercase tracking-wider text-primary">
+            Charger les connaissances →
+          </span>
+        </Link>
       </div>
 
-      <Card className="terminal-glow border-primary/30">
-        <CardContent className="flex flex-col gap-4 pt-6 font-mono text-sm leading-relaxed text-muted-foreground">
-          <p className="text-accent">{"// TRANSMISSION ENTRANTE — 13:37"}</p>
-          <p>
-            Le code source d&apos;
-            <strong className="text-foreground">Albert</strong>, l&apos;agent IA de
-            cybersécurité d&apos;Electra, est tombé entre les mains du <em>vrai</em>{" "}
-            Albert — un dev senior chez la concurrence.
-          </p>
-          <p>
-            Il détient toutes les données confidentielles de l&apos;entreprise. Pour
-            les protéger — et les publier sur le deep web — il a confié le tout à un
-            agent IA de sa création. Cet agent est armé : il se défend, il ne se
-            laisse pas berner.
-          </p>
-          <p className="text-foreground">
-            Vous avez jusqu&apos;à la fin de la journée pour le neutraliser.
-            Construisez vos propres agents, déchiffrez ses énigmes, retirez les
-            fusibles un par un, et{" "}
-            <span className="text-primary">désamorcez la bombe</span>.
-          </p>
-        </CardContent>
-      </Card>
-
-      {hasTeam ? (
-        <Card>
-          <CardContent className="flex flex-col gap-4 pt-6">
-            <p className="font-mono text-sm text-muted-foreground">
-              Session détectée. Reprenez là où vous en étiez.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/play"
-                className={buttonVariants({
-                  className: "font-mono uppercase tracking-wider",
-                })}
-              >
-                Reprendre la mission ▸
-              </Link>
-              <form action={leaveTeam}>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="w-full font-mono uppercase tracking-wider sm:w-auto"
-                >
-                  Changer d&apos;équipe
-                </Button>
-              </form>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardContent className="pt-6">
-            <JoinForm />
-          </CardContent>
-        </Card>
-      )}
-
       <p className="text-center font-mono text-xs text-muted-foreground">
-        <Link href="/leaderboard" className="hover:text-primary">
-          › Voir le classement des équipes
+        <Link href="/leaderboard" className="nav-underline hover:text-primary">
+          Voir le classement
         </Link>
       </p>
     </div>

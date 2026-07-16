@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { gradeQuiz } from "@/app/actions";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n-provider";
 import type { QuizGrade, QuizOption, QuizQuestion } from "@/lib/types";
 
 export type QuizItem = {
@@ -63,6 +64,7 @@ function OptionRow({
 }
 
 export function QuizRunner({ items }: { items: QuizItem[] }) {
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [states, setStates] = useState<Record<string, QState>>(() =>
@@ -101,8 +103,9 @@ export function QuizRunner({ items }: { items: QuizItem[] }) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">
-          {done}/{items.length} question{items.length > 1 ? "s" : ""} · {good} bonne
-          {good > 1 ? "s" : ""}
+          {done}/{items.length}{" "}
+          {items.length > 1 ? t.quiz.questions : t.quiz.question1} · {good}{" "}
+          {t.quiz.correctCount}
         </span>
       </div>
 
@@ -121,7 +124,8 @@ export function QuizRunner({ items }: { items: QuizItem[] }) {
                 {q.question}
               </p>
               <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                {multiple ? "choix multiples" : "un choix"} · {q.points} pts
+                {multiple ? t.quiz.multiple : t.quiz.single} · {q.points}{" "}
+                {t.quiz.pts}
               </span>
             </div>
 
@@ -147,7 +151,7 @@ export function QuizRunner({ items }: { items: QuizItem[] }) {
                 disabled={(st?.selected.size ?? 0) === 0 || pending}
                 className="mt-4"
               >
-                {pending && pendingId === q.id ? "Vérification…" : "Valider"}
+                {pending && pendingId === q.id ? t.quiz.checking : t.quiz.validate}
               </Button>
             ) : (
               <div
@@ -158,9 +162,7 @@ export function QuizRunner({ items }: { items: QuizItem[] }) {
                 }`}
               >
                 <p className="mb-1 font-semibold">
-                  {st?.grade?.correct
-                    ? "✔ Correct !"
-                    : "✘ Presque — la bonne réponse est surlignée."}
+                  {st?.grade?.correct ? t.quiz.correct : t.quiz.almost}
                 </p>
                 {st?.grade?.explanation && (
                   <p className="text-muted-foreground">{st.grade.explanation}</p>

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { getGameState } from "@/app/actions";
-import type { GameState } from "@/lib/types";
+import { useI18n } from "@/components/i18n-provider";
+import type { GameState, GameStatus } from "@/lib/types";
 
 function fmt(total: number): string {
   const s = Math.max(0, Math.floor(total));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  const mm = String(h > 0 ? m : m).padStart(2, "0");
+  const mm = String(m).padStart(2, "0");
   const ss = String(sec).padStart(2, "0");
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
@@ -25,32 +26,68 @@ function computeRemaining(state: GameState, nowMs: number): number | null {
   return null;
 }
 
-const STATUS_LABEL: Record<GameState["status"], string> = {
-  idle: "EN ATTENTE",
-  running: "ARMÉE",
-  paused: "EN PAUSE",
-  stopped: "GELÉE",
-  defused: "DÉSAMORCÉE",
-  exploded: "EXPLOSÉE",
-};
+/** Regroupe l'affichage (chiffres, ton, états critiques) au même endroit. */
+function derive(state: GameState | null, nowMs: number) {
+  if (!state) {
+    return {
+      display: "--:--",
+      statusKey: "idle" as GameStatus,
+      tone: "text-muted-foreground",
+      critical: false,
+      exploded: false,
+      locked: false,
+      message: "",
+    };
+  }
+  const remaining = computeRemaining(state, nowMs);
+  const exploded =
+    state.status === "exploded" ||
+    (state.status === "running" && remaining !== null && remaining <= 0);
+  const critical =
+    !exploded &&
+    state.status === "running" &&
+    remaining !== null &&
+    remaining <= 60;
 
-export function BombTimer({
-  initial,
-  variant = "full",
-}: {
-  initial: GameState | null;
-  variant?: "full" | "banner";
-}) {
+  // Au repos on montre la durée configurée (aperçu), sinon le temps restant.
+  const display =
+    state.status === "idle"
+      ? fmt(state.duration_seconds)
+      : remaining !== null
+        ? fmt(remaining)
+        : exploded
+          ? "00:00"
+          : "--:--";
+
+  const tone = exploded
+    ? "text-destructive"
+    : critical
+      ? "text-destructive"
+      : state.status === "running"
+        ? "text-accent"
+        : "text-muted-foreground";
+
+  return {
+    display,
+    statusKey: state.status,
+    tone,
+    critical,
+    exploded,
+    locked: state.submissions_locked,
+    message: state.message,
+  };
+}
+
+/** Hook commun : état initial + tick 1s + poll serveur 4s. */
+function useLiveState(initial: GameState | null) {
   const [state, setState] = useState<GameState | null>(initial);
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
 
-  // Tick d'affichage (chaque seconde).
   useEffect(() => {
     const id = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Poll de l'état serveur (changements admin : arm/pause/stop…).
   useEffect(() => {
     let alive = true;
     const poll = async () => {
@@ -64,77 +101,86 @@ export function BombTimer({
     };
   }, []);
 
-  if (!state || state.status === "idle") {
-    if (variant === "banner") return null;
+  return { state, nowMs };
+}
+
+export function BombTimer({
+  initial,
+  variant = "full",
+}: {
+  initial: GameState | null;
+  variant?: "full" | "bar";
+}) {
+  const { t } = useI18n();
+  const { state, nowMs } = useLiveState(initial);
+  const d = derive(state, nowMs);
+  const statusLabel = t.bomb.status[d.statusKey];
+
+  /* --- Barre globale, pleine largeur, gros chiffres ------------------------ */
+  if (variant === "bar") {
     return (
-      <div className="rounded-md border border-border/50 bg-card/50 px-4 py-3 text-center font-mono text-xs text-muted-foreground">
-        ⏱ Minuteur non armé — en attente du maître du jeu.
+      <div
+        className={`w-full border-b border-border/60 bg-background/80 backdrop-blur-sm ${
+          d.critical || d.exploded ? "bomb-critical" : ""
+        }`}
+      >
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-2.5">
+          <span className={`text-lg ${d.tone}`} aria-hidden>
+            ◉
+          </span>
+          <span
+            className={`font-mono text-3xl font-bold tabular-nums tracking-widest sm:text-4xl ${d.tone}`}
+          >
+            {d.display}
+          </span>
+          <span
+            className={`font-mono text-[11px] font-semibold uppercase tracking-[0.25em] ${d.tone}`}
+          >
+            {t.bomb.label} {statusLabel}
+          </span>
+          {d.locked && !d.exploded && (
+            <span className="font-mono text-[11px] text-destructive">
+              {t.bomb.frozen}
+            </span>
+          )}
+          {d.message && (
+            <span className="w-full text-center font-mono text-xs text-accent">
+              {d.message}
+            </span>
+          )}
+        </div>
       </div>
     );
   }
 
-  const remaining = computeRemaining(state, nowMs);
-  const exploded =
-    state.status === "exploded" ||
-    (state.status === "running" && remaining !== null && remaining <= 0);
-  const critical =
-    !exploded &&
-    state.status === "running" &&
-    remaining !== null &&
-    remaining <= 60;
-
-  const display =
-    remaining !== null ? fmt(remaining) : exploded ? "00:00" : "—:—";
-
-  const tone = exploded
-    ? "text-destructive"
-    : critical
-      ? "text-destructive"
-      : state.status === "running"
-        ? "text-accent"
-        : "text-muted-foreground";
-
-  if (variant === "banner") {
-    return (
-      <span
-        className={`inline-flex items-center gap-2 font-mono text-xs ${tone} ${
-          critical || exploded ? "bomb-critical rounded px-1.5" : ""
-        }`}
-      >
-        <span aria-hidden>◉</span>
-        <span className="tabular-nums font-bold">{display}</span>
-        <span className="opacity-70">{STATUS_LABEL[state.status]}</span>
-      </span>
-    );
-  }
-
+  /* --- Carte "full" (grande, style bombe) ---------------------------------- */
   return (
     <div
-      className={`bomb-frame relative overflow-hidden rounded-lg border border-accent/30 bg-black/40 px-6 py-5 ${
-        critical || exploded ? "bomb-critical" : ""
-      }`}
+      className={`bomb-frame relative overflow-hidden rounded-lg border px-6 py-5 ${
+        d.critical || d.exploded ? "bomb-critical border-destructive/40" : "border-accent/30"
+      } bg-black/40`}
     >
       <div className="scanline pointer-events-none absolute inset-0" />
       <div className="relative flex flex-col items-center gap-1">
         <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-          {exploded ? "// DÉTONATION" : "// COMPTE À REBOURS"}
+          {d.exploded ? t.bomb.detonation : t.bomb.countdown}
         </span>
         <span
-          className={`font-mono text-5xl font-bold tabular-nums tracking-widest ${tone}`}
+          className={`font-mono text-6xl font-bold tabular-nums tracking-widest ${d.tone}`}
         >
-          {display}
+          {d.display}
         </span>
-        <span className={`font-mono text-[11px] uppercase tracking-widest ${tone}`}>
-          BOMBE {STATUS_LABEL[state.status]}
+        <span className={`font-mono text-xs uppercase tracking-widest ${d.tone}`}>
+          {t.bomb.label} {statusLabel}
         </span>
-        {state.submissions_locked && !exploded && (
+        {d.locked && !d.exploded && (
           <span className="mt-1 font-mono text-[11px] text-destructive">
-            🔒 Soumissions gelées
+            {t.bomb.frozen}
           </span>
         )}
-        {state.message && (
+        {d.message && (
           <p className="mt-2 max-w-md text-center font-mono text-xs text-accent">
-            {state.message}
+            {d.message}
           </p>
         )}
       </div>
