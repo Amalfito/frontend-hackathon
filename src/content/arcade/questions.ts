@@ -274,7 +274,7 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     difficulty: 2,
     intro:
       "Albert siphonne l'énergie du réseau ! Des éclairs s'échappent de la station — attrape-les avant qu'il ne les absorbe.",
-    hint: "Vise devant l'éclair, pas dessus : il bouge.",
+    hint: "La cible se déplace lentement — clique dessus, elle est grosse.",
     mechanic: {
       kind: "target",
       question: "Attrape 3 éclairs avant qu'Albert ne les siphonne !",
@@ -290,7 +290,7 @@ export const arcadeQuestions: ArcadeQuestion[] = [
     difficulty: 2,
     intro:
       "Albert a libéré les batteries de secours ! Elles filent vers sa cache — intercepte-les.",
-    hint: "Anticipe la trajectoire, clique juste devant.",
+    hint: "La cible se déplace lentement — clique dessus, elle est grosse.",
     mechanic: {
       kind: "target",
       question: "Récupère 3 batteries avant qu'elles n'atteignent la cache d'Albert !",

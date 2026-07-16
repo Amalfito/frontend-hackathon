@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ElectraBolt } from "@/components/brand/electra-logo";
 import { EnergyField } from "@/components/fx/energy-field";
 import { Reveal } from "@/components/fx/reveal";
@@ -88,11 +89,40 @@ function ModuleCard({
   );
 }
 
+const ONBOARDING_SKIP_KEY = "electra-academy-quiz-dismissed";
+
 export function AcademyHome({ modules }: { modules: ModuleSummary[] }) {
   const { progress, ready, setPersona, reset } = useAcademyProgress();
   const [showQuiz, setShowQuiz] = useState(false);
+  // Pop-in d'orientation : « plus tard » est mémorisé pour ne pas harceler.
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.localStorage.getItem(ONBOARDING_SKIP_KEY) === "1",
+  );
+  const reduced = useReducedMotion();
 
   const path = ready ? pathFor(progress.persona) : null;
+  const showOnboarding = ready && !path && !onboardingDismissed;
+
+  const dismissOnboarding = () => {
+    window.localStorage.setItem(ONBOARDING_SKIP_KEY, "1");
+    setOnboardingDismissed(true);
+  };
+
+  // Échap ferme la pop-in ; scroll de fond verrouillé tant qu'elle est ouverte.
+  useEffect(() => {
+    if (!showOnboarding) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismissOnboarding();
+    };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [showOnboarding]);
   const bySlug = new Map(modules.map((m) => [m.slug, m]));
   const orderedForPath = path
     ? (path.modules.map((s) => bySlug.get(s)).filter(Boolean) as ModuleSummary[])
@@ -114,6 +144,54 @@ export function AcademyHome({ modules }: { modules: ModuleSummary[] }) {
 
   return (
     <div className="flex flex-col gap-10">
+      {/* Pop-in d'orientation : le quiz d'abord, les infos ensuite. */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <motion.div
+            initial={reduced ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduced ? undefined : { opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[var(--electra-petrol-deep)]/70 p-4 backdrop-blur-sm"
+            onClick={dismissOnboarding}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Quiz d'orientation"
+          >
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={reduced ? undefined : { opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="theme-learn w-full max-w-xl rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col gap-4 rounded-2xl border border-[var(--electra-mint)]/40 bg-background p-6">
+                <div className="flex flex-col gap-1 text-center">
+                  <p className="flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--electra-mint)]">
+                    <ElectraBolt className="h-3.5 w-3.5" /> Electra AI Academy
+                  </p>
+                  <h2 className="font-elegant text-2xl font-bold">
+                    30 secondes pour ton parcours sur mesure
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    5 questions, zéro surcharge : on te recommande directement
+                    les meilleurs modules pour toi.
+                  </p>
+                </div>
+                <OrientationQuiz />
+                <button
+                  type="button"
+                  onClick={dismissOnboarding}
+                  className="self-center font-mono text-[11px] text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
+                >
+                  Plus tard — je préfère explorer librement
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero « le réseau qui apprend » — panneau pétrole, particules menthe. */}
       <header className="relative overflow-hidden rounded-2xl bg-[var(--electra-petrol-deep)] px-6 py-12 sm:px-10 sm:py-16">
         <EnergyField progress={0.3 + globalRatio * 0.7} />

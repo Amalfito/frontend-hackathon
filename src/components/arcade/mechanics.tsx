@@ -440,7 +440,7 @@ export function TargetPlay({
   disabled: boolean;
 }) {
   const [caught, setCaught] = useState(0);
-  const [pos, setPos] = useState({ x: -8, y: 30, speed: 0.35 });
+  const [pos, setPos] = useState({ x: -8, y: 45, speed: 0.18 });
   const areaRef = useRef<HTMLDivElement>(null);
   const reduced = useMemo(
     () =>
@@ -459,8 +459,8 @@ export function TargetPlay({
     // Respawn : reduced-motion → nouvelle position fixe ; sinon retour à gauche.
     setPos(
       reduced
-        ? { x: 15 + Math.random() * 70, y: 15 + Math.random() * 70, speed: 0 }
-        : { x: -8, y: 10 + Math.random() * 75, speed: 0.35 + next * 0.14 },
+        ? { x: 20 + Math.random() * 55, y: 20 + Math.random() * 55, speed: 0 }
+        : { x: -10, y: 25 + Math.random() * 45, speed: 0.18 + next * 0.04 },
     );
   };
 
@@ -472,10 +472,10 @@ export function TargetPlay({
         let x = p.x + p.speed;
         let y = p.y;
         let speed = p.speed;
-        if (x > 108) {
-          x = -8;
-          y = 10 + Math.random() * 75;
-          speed = 0.3 + Math.random() * 0.45 + caught * 0.12; // ça accélère !
+        if (x > 110) {
+          x = -10;
+          y = 25 + Math.random() * 45;
+          speed = 0.16 + Math.random() * 0.14 + caught * 0.03; // léger, à peine plus vif
         }
         return { x, y, speed };
       });
@@ -489,11 +489,12 @@ export function TargetPlay({
     <div className="flex flex-col gap-3">
       <p className="font-semibold">{m.question}</p>
       <p className="font-mono text-[11px] text-muted-foreground">
-        Attrape {m.catches} fois {m.emoji} — et ça accélère. {caught}/{m.catches}
+        Clique sur {m.emoji} {m.catches} fois pour l&apos;attraper. {caught}/
+        {m.catches}
       </p>
       <div
         ref={areaRef}
-        className="relative h-52 overflow-hidden rounded-lg border border-border bg-[var(--electra-petrol-deep)]"
+        className="relative h-56 overflow-hidden rounded-lg border border-border bg-[var(--electra-petrol-deep)]"
       >
         <div
           aria-hidden="true"
@@ -509,7 +510,7 @@ export function TargetPlay({
           disabled={disabled || caught >= m.catches}
           onClick={catchTarget}
           aria-label="Attraper la cible"
-          className="absolute -translate-x-1/2 -translate-y-1/2 cursor-crosshair text-3xl transition-transform hover:scale-125 focus-visible:scale-125"
+          className="absolute flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-accent/70 bg-accent/15 text-5xl shadow-[0_0_28px_rgb(255_122_0/0.4)] transition-transform hover:scale-110 focus-visible:scale-110 disabled:opacity-40"
           style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
         >
           {m.emoji}
