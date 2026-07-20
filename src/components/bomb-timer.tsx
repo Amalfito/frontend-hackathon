@@ -35,10 +35,12 @@ function derive(state: GameState | null, nowMs: number) {
       tone: "text-muted-foreground",
       critical: false,
       exploded: false,
+      victory: false,
       locked: false,
       message: "",
     };
   }
+  const victory = !!state.victory_at;
   const remaining = computeRemaining(state, nowMs);
   const exploded =
     state.status === "exploded" ||
@@ -73,6 +75,7 @@ function derive(state: GameState | null, nowMs: number) {
     tone,
     critical,
     exploded,
+    victory,
     locked: state.submissions_locked,
     message: state.message,
   };
@@ -115,6 +118,40 @@ export function BombTimer({
   const { state, nowMs } = useLiveState(initial);
   const d = derive(state, nowMs);
   const statusLabel = t.bomb.status[d.statusKey];
+
+  /* --- Victoire collective : le chrono est remplacé par une bannière ------- */
+  if (d.victory) {
+    if (variant === "bar") {
+      return (
+        <div className="w-full border-b border-primary/40 bg-background/80 backdrop-blur-sm">
+          <div className="victory-glow mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-none px-4 py-3">
+            <span className="text-xl text-primary" aria-hidden>
+              🏆
+            </span>
+            <span className="font-mono text-sm font-bold uppercase tracking-[0.25em] text-primary text-glow">
+              {t.bomb.victoryTitle}
+            </span>
+            <span className="font-mono text-[11px] text-muted-foreground">
+              {t.bomb.victorySub}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="victory-glow relative overflow-hidden rounded-lg border border-primary/50 bg-black/40 px-6 py-6 text-center">
+        <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-primary/80">
+          {t.bomb.victoryLabel}
+        </p>
+        <p className="mt-2 font-elegant text-3xl font-bold text-primary text-glow">
+          🏆 {t.bomb.victoryTitle}
+        </p>
+        <p className="mt-1 font-mono text-xs text-muted-foreground">
+          {t.bomb.victorySub}
+        </p>
+      </div>
+    );
+  }
 
   /* --- Barre globale, pleine largeur, gros chiffres ------------------------ */
   if (variant === "bar") {

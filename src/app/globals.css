@@ -391,6 +391,90 @@
       transparent 3px
     );
   }
+
+  /* --- Albert : yeux qui clignent, bouche qui parle, glitch « evil » ------ */
+  .albert-blink {
+    animation: albert-blink 3.2s steps(1, end) infinite;
+  }
+  @keyframes albert-blink {
+    0%,
+    92%,
+    100% {
+      opacity: 1;
+    }
+    95% {
+      opacity: 0.15;
+    }
+  }
+  .albert-talk {
+    animation: albert-talk 0.5s ease-in-out infinite;
+  }
+  @keyframes albert-talk {
+    0%,
+    100% {
+      transform: scaleX(1) scaleY(1);
+    }
+    50% {
+      transform: scaleX(0.55) scaleY(2.2);
+    }
+  }
+  .albert-glitch {
+    animation: albert-glitch 1.6s steps(2, end) infinite;
+  }
+  @keyframes albert-glitch {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    20% {
+      transform: translate(-2px, 1px);
+    }
+    40% {
+      transform: translate(2px, -1px);
+    }
+    60% {
+      transform: translate(-1px, -1px);
+    }
+    80% {
+      transform: translate(1px, 1px);
+    }
+  }
+
+  /* --- Répliques d'Albert : apparition séquentielle (effet transmission) -- */
+  .albert-line {
+    opacity: 0;
+    animation: albert-line 0.5s ease-out forwards;
+  }
+  @keyframes albert-line {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* --- Victoire collective : halo vert qui pulse (remplace le chrono) ----- */
+  .victory-glow {
+    animation: victory-glow 2.4s ease-in-out infinite;
+  }
+  @keyframes victory-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgb(67 245 185 / 40%),
+        0 0 25px rgb(67 245 185 / 20%);
+      text-shadow: 0 0 12px rgb(67 245 185 / 45%);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px rgb(67 245 185 / 70%),
+        0 0 55px rgb(67 245 185 / 45%);
+      text-shadow: 0 0 26px rgb(67 245 185 / 85%);
+    }
+  }
 }
 
 /* ============================================================================

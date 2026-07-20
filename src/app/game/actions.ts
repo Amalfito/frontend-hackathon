@@ -32,6 +32,21 @@ type ArcadeRow = {
   finished_at: string | null;
 };
 
+/** État de fin de partie partagé (piège d'Albert + victoire collective). */
+export type EndgameView = {
+  /** Nb d'équipes de l'arcade ayant fini / total connecté. */
+  finishedCount: number;
+  totalCount: number;
+  /** Cette équipe est-elle celle qui a déclenché le piège (1re à finir) ? */
+  isFirstFinisher: boolean;
+  /** Le piège est armé (fausse victoire, bombe en pause) et pas encore déclenché. */
+  trapArmed: boolean;
+  /** Le piège a été déclenché : la bombe est repartie. */
+  trapSprung: boolean;
+  /** Toutes les équipes ont fini : vraie victoire. */
+  victory: boolean;
+};
+
 export type ArcadeView = {
   teamName: string;
   q: number;
@@ -45,6 +60,8 @@ export type ArcadeView = {
   question: PublicArcadeQuestion | null;
   /** Équipes ciblables (id + nom), pour le panneau sabotage. */
   rivals: { id: string; name: string }[];
+  /** État de fin de partie (piège / victoire). */
+  endgame: EndgameView;
 };
 
 function findQuestion(slot: number, variant: number) {
@@ -79,6 +96,75 @@ async function loadState(tid: string): Promise<ArcadeRow> {
     );
   }
   return created;
+}
+
+/**
+ * La bombe globale a-t-elle explosé ? (armée et chrono dépassé, ou 'exploded').
+ * Best-effort : toute erreur (base non prête) → false, le jeu reste jouable.
+ */
+async function bombDetonated(
+  supabase: ReturnType<typeof createAdminClient>,
+): Promise<boolean> {
+  try {
+    const { data } = await supabase
+      .from("game_state")
+      .select("status,ends_at")
+      .eq("id", 1)
+      .maybeSingle<{ status: string; ends_at: string | null }>();
+    if (!data) return false;
+    if (data.status === "exploded") return true;
+    return (
+      data.status === "running" &&
+      !!data.ends_at &&
+      new Date(data.ends_at).getTime() < Date.now()
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * État de fin de partie, lu côté serveur (service_role). Dégrade en douceur si
+ * la migration endgame (0003) n'a pas encore tourné : tout à false/0.
+ */
+async function loadEndgame(tid: string): Promise<EndgameView> {
+  const empty: EndgameView = {
+    finishedCount: 0,
+    totalCount: 0,
+    isFirstFinisher: false,
+    trapArmed: false,
+    trapSprung: false,
+    victory: false,
+  };
+  try {
+    const supabase = createAdminClient();
+    const [{ count: totalCount }, { count: finishedCount }, { data: gs }] =
+      await Promise.all([
+        supabase.from("arcade_state").select("team_id", { count: "exact", head: true }),
+        supabase
+          .from("arcade_state")
+          .select("team_id", { count: "exact", head: true })
+          .not("finished_at", "is", null),
+        supabase.from("game_state").select("*").eq("id", 1).maybeSingle(),
+      ]);
+
+    const g = (gs ?? {}) as Record<string, unknown>;
+    const trapArmedAt = g.trap_armed_at as string | null | undefined;
+    const trapSprungAt = g.trap_sprung_at as string | null | undefined;
+    const victoryAt = g.victory_at as string | null | undefined;
+    const firstFinisherId = g.first_finisher_id as string | null | undefined;
+
+    return {
+      finishedCount: finishedCount ?? 0,
+      totalCount: totalCount ?? 0,
+      isFirstFinisher: !!firstFinisherId && firstFinisherId === tid,
+      trapArmed: !!trapArmedAt && !trapSprungAt,
+      trapSprung: !!trapSprungAt,
+      victory: !!victoryAt,
+    };
+  } catch {
+    return empty;
+  }
 }
 
 async function buildView(tid: string, row: ArcadeRow): Promise<ArcadeView> {
@@ -118,6 +204,7 @@ async function buildView(tid: string, row: ArcadeRow): Promise<ArcadeView> {
     finished,
     question: question ? toPublic(question) : null,
     rivals: others ?? [],
+    endgame: await loadEndgame(tid),
   };
 }
 
@@ -144,6 +231,16 @@ export async function submitArcade(sub: ArcadeSubmission): Promise<SubmitResult>
   if (!tid) return { error: "Pas d'équipe — retourne à l'accueil." };
   try {
     const supabase = createAdminClient();
+
+    // Chrono d'Albert écoulé (bombe armée & expirée) → plus aucune soumission :
+    // les données ont fuité, il faut attendre les consignes du maître du jeu.
+    if (await bombDetonated(supabase)) {
+      return {
+        error:
+          "⏱ TEMPS ÉCOULÉ — le chrono d'Albert a expiré. Attendez le maître du jeu.",
+      };
+    }
+
     const row = await loadState(tid);
     if (row.q >= TOTAL_SLOTS) return { error: "Run déjà terminé." };
     const question = findQuestion(row.q + 1, row.variant);
@@ -167,6 +264,17 @@ export async function submitArcade(sub: ArcadeSubmission): Promise<SubmitResult>
       .eq("team_id", tid)
       .select("*")
       .single<ArcadeRow>();
+
+    // Fin des 20 verrous → déclenche l'endgame (piège ou victoire collective).
+    // Best-effort : si la migration endgame n'est pas jouée, on ignore l'erreur.
+    if (finished) {
+      try {
+        await supabase.rpc("arcade_on_finish", { p_team_id: tid });
+      } catch {
+        /* endgame indisponible — le jeu reste jouable sans le piège */
+      }
+    }
+
     return {
       correct: true,
       points,
@@ -247,6 +355,24 @@ export async function sabotage(
       .single<ArcadeRow>();
 
     return { ok: true, target: target.name, view: await buildView(tid, mine ?? row) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Erreur inconnue." };
+  }
+}
+
+/**
+ * Le 1er finisher clique « voir le podium » → il RÉACTIVE la bombe (le piège
+ * se referme). Renvoie l'état de fin de partie mis à jour pour l'animation.
+ */
+export async function springTrap(): Promise<
+  { ok: true; endgame: EndgameView } | { error: string }
+> {
+  const tid = await teamId();
+  if (!tid) return { error: "Pas d'équipe." };
+  try {
+    const supabase = createAdminClient();
+    await supabase.rpc("arcade_spring_trap", { p_team_id: tid });
+    return { ok: true, endgame: await loadEndgame(tid) };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Erreur inconnue." };
   }
