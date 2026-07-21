@@ -34,6 +34,22 @@ export type ArcadeMechanic =
   /** Cible mobile : attraper N fois l'objet qui traverse l'écran. */
   | { kind: "target"; question: string; catches: number; emoji: string }
   /**
+   * Acronymes : `needed` sous-questions ; pour chacune, les propositions
+   * traversent l'écran à l'horizontale (sens alternés, sans se croiser) et on
+   * clique la bonne. `answerIndex` reste CÔTÉ SERVEUR (validation par label).
+   */
+  | {
+      kind: "acronym";
+      question: string;
+      needed: number;
+      items: {
+        acronym: string;
+        prompt: string;
+        options: string[];
+        answerIndex: number;
+      }[];
+    }
+  /**
    * Énigme cachée : un élément quasi invisible est dissimulé dans la page ;
    * le cliquer révèle un code (via server action) à saisir. `spot` = indice
    * de placement ("corner-tl" | "corner-tr" | "corner-bl" | "corner-br" | "header").
@@ -45,8 +61,8 @@ export type ArcadeQuestion = {
   id: string;
   /** 1..20 — position dans le run. */
   slot: number;
-  /** 0 = variante A (premier run), 1 = variante B (après reset). */
-  variant: 0 | 1;
+  /** 0..3 = série A/B/C/D. On change de série à chaque reset punitif (cycle). */
+  variant: 0 | 1 | 2 | 3;
   title: string;
   /** 1..5 — informatif, croît avec le slot. */
   difficulty: number;
@@ -75,6 +91,12 @@ export type PublicMechanic =
   | { kind: "match"; question: string; left: string[]; right: string[] }
   | { kind: "order"; question: string; steps: string[] }
   | { kind: "target"; question: string; catches: number; emoji: string }
+  | {
+      kind: "acronym";
+      question: string;
+      needed: number;
+      items: { acronym: string; prompt: string; options: string[] }[];
+    }
   | { kind: "hidden"; question: string; spot: string };
 
 export type PublicArcadeQuestion = {
@@ -97,6 +119,7 @@ export type ArcadeSubmission =
   | { kind: "match"; pairs: [string, string][] } // [gauche, droite]
   | { kind: "order"; steps: string[] }
   | { kind: "target"; caught: number }
+  | { kind: "acronym"; picks: string[] }
   | { kind: "hidden"; code: string };
 
 /** Mélange déterministe (seed = id) pour ne pas trahir l'ordre des réponses. */
@@ -156,6 +179,19 @@ export function toPublic(q: ArcadeQuestion): PublicArcadeQuestion {
       break;
     case "target":
       pub = { kind: "target", question: m.question, catches: m.catches, emoji: m.emoji };
+      break;
+    case "acronym":
+      pub = {
+        kind: "acronym",
+        question: m.question,
+        needed: m.needed,
+        items: m.items.map((it) => ({
+          acronym: it.acronym,
+          prompt: it.prompt,
+          // Ordre mélangé côté client : answerIndex jamais exposé.
+          options: seededShuffle(it.options, q.id + it.acronym),
+        })),
+      };
       break;
     case "hidden":
       pub = { kind: "hidden", question: m.question, spot: m.spot };
@@ -218,6 +254,17 @@ export function checkSubmission(q: ArcadeQuestion, sub: ArcadeSubmission): boole
     }
     case "target":
       return (sub as { caught: number }).caught >= m.catches;
+    case "acronym": {
+      const picks = (sub as { picks: string[] }).picks ?? [];
+      if (picks.length < m.needed) return false;
+      // Chaque sous-question validée par LABEL (l'index correct n'est jamais envoyé).
+      return m.items
+        .slice(0, m.needed)
+        .every(
+          (it, i) =>
+            normalizeText(picks[i] ?? "") === normalizeText(it.options[it.answerIndex]),
+        );
+    }
     case "hidden":
       return normalizeText((sub as { code: string }).code) === normalizeText(m.code);
   }

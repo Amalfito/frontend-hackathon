@@ -7,6 +7,7 @@
  * ========================================================================== */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import type { PublicMechanic, ArcadeSubmission } from "@/lib/arcade/types";
 
 type SubmitFn = (sub: ArcadeSubmission) => void;
@@ -596,6 +597,100 @@ export function HiddenPlay({
           ⚡
         </button>
       )}
+    </div>
+  );
+}
+
+/* --- Acronymes : les propositions traversent l'écran (sens alternés) --------- */
+export function AcronymPlay({
+  m,
+  onSubmit,
+  disabled,
+}: {
+  m: Extract<PublicMechanic, { kind: "acronym" }>;
+  onSubmit: SubmitFn;
+  disabled: boolean;
+}) {
+  const reduced = useReducedMotion();
+  const [idx, setIdx] = useState(0);
+  const [picks, setPicks] = useState<string[]>([]);
+  const [flash, setFlash] = useState(false);
+
+  const items = m.items.slice(0, m.needed);
+  const item = items[idx];
+  if (!item) return null;
+
+  const choose = (label: string) => {
+    if (disabled) return;
+    const nextPicks = [...picks, label];
+    setFlash(true);
+    setTimeout(() => setFlash(false), 250);
+    if (idx + 1 >= items.length) {
+      onSubmit({ kind: "acronym", picks: nextPicks });
+      // Reset optimiste : si la réponse est fausse, le parent remonte le composant.
+      setPicks([]);
+      setIdx(0);
+    } else {
+      setPicks(nextPicks);
+      setIdx(idx + 1);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="font-semibold">{m.question}</p>
+      <p className="font-mono text-[11px] text-muted-foreground">
+        Clique la bonne proposition — elles défilent. {idx + 1}/{items.length}
+      </p>
+
+      <div
+        className={`rounded-xl border p-4 text-center transition-colors ${
+          flash ? "border-primary bg-primary/10" : "border-accent/40 bg-accent/5"
+        }`}
+      >
+        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent">
+          {item.prompt}
+        </p>
+        <p className="font-elegant text-4xl font-bold text-primary text-glow">
+          {item.acronym}
+        </p>
+      </div>
+
+      {/* Une proposition par couloir : sens alternés, jamais de croisement. */}
+      <div className="flex flex-col gap-2 rounded-lg border border-border bg-[var(--electra-petrol-deep)] p-2">
+        {item.options.map((opt, k) => {
+          const ltr = k % 2 === 0; // pair → gauche·droite, impair → droite·gauche
+          const duration = 7 + (k % 3) * 2.5; // durées variées → pas synchronisé
+          const btn = (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => choose(opt)}
+              className="whitespace-nowrap rounded-md border border-primary/40 bg-card px-3 py-1.5 text-sm font-medium shadow-[0_0_16px_rgb(67_245_185/0.15)] transition-colors hover:border-primary hover:bg-primary/15"
+            >
+              {opt}
+            </button>
+          );
+          return (
+            <div key={k} className="relative h-10 overflow-hidden">
+              {reduced ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {btn}
+                </div>
+              ) : (
+                <motion.div
+                  className="absolute top-1/2 -translate-y-1/2"
+                  initial={{ left: ltr ? "-20%" : "100%" }}
+                  animate={{ left: ltr ? ["-20%", "100%"] : ["100%", "-20%"] }}
+                  transition={{ duration, repeat: Infinity, ease: "linear" }}
+                >
+                  {btn}
+                </motion.div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

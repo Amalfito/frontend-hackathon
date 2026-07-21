@@ -130,6 +130,17 @@ const en = {
     victoryCta: "View the final podium ▸",
   },
 
+  arcade: {
+    waitingTag: "// STANDBY",
+    waitingTitle: "The escape game hasn't started yet",
+    waitingBody:
+      "Albert's countdown isn't armed. The game master will launch the timer to open the challenge — then the 20 locks unlock. Hang tight.",
+    waitingRegistered:
+      "✓ Your team is registered — you'll start the instant the timer goes live.",
+    waitingHint: "Meanwhile, brush up in the",
+    locked: "⏳ The escape game hasn't started — wait for the game master.",
+  },
+
   learn: {
     kicker: "Electra · AI Academy",
     title: "Learn, the easy way",
@@ -200,6 +211,13 @@ const en = {
     broadcast: "Broadcast",
     messageLabel: "> Message broadcast to teams",
     messagePlaceholder: "e.g. global hint unlocked…",
+    learnControl: "Learn-mode timer",
+    learnArmLabel: "> Start the learn timer (duration in minutes)",
+    learnStart: "◉ Start",
+    learnPause: "⏸ Pause",
+    learnResume: "▶ Resume",
+    learnReset: "↺ Reset",
+    learnHiddenByBomb: "The bomb is armed — the learn timer is hidden until reset.",
   },
 
   bomb: {
@@ -218,6 +236,8 @@ const en = {
     victoryLabel: "// OPERATION SUCCESSFUL",
     victoryTitle: "ALBERT NEUTRALIZED",
     victorySub: "All teams escaped — the leak is cancelled.",
+    learnLabel: "LEARN MODE",
+    learnStatus: { running: "IN PROGRESS", paused: "PAUSED" },
   },
 
   // Messages renvoyés par les Server Actions
@@ -349,6 +369,17 @@ const fr: Dict = {
     victoryCta: "Voir le podium final ▸",
   },
 
+  arcade: {
+    waitingTag: "// EN ATTENTE",
+    waitingTitle: "L'escape game n'a pas encore commencé",
+    waitingBody:
+      "Le compte à rebours d'Albert n'est pas armé. Le maître du jeu lancera le chronomètre pour ouvrir l'épreuve — les 20 verrous se débloqueront alors. Tenez-vous prêts.",
+    waitingRegistered:
+      "✓ Votre équipe est inscrite — vous démarrerez dès que le chrono sera lancé.",
+    waitingHint: "En attendant, révisez dans la",
+    locked: "⏳ L'escape game n'a pas encore démarré — attendez le maître du jeu.",
+  },
+
   learn: {
     kicker: "Electra · Académie IA",
     title: "Apprendre, en douceur",
@@ -419,6 +450,13 @@ const fr: Dict = {
     broadcast: "Diffuser",
     messageLabel: "> Message diffusé aux équipes",
     messagePlaceholder: "ex: Indice global débloqué…",
+    learnControl: "Chrono mode apprentissage",
+    learnArmLabel: "> Démarrer le chrono learn (durée en minutes)",
+    learnStart: "◉ Démarrer",
+    learnPause: "⏸ Pause",
+    learnResume: "▶ Reprendre",
+    learnReset: "↺ Reset",
+    learnHiddenByBomb: "La bombe est armée — le chrono learn est masqué jusqu'au reset.",
   },
 
   bomb: {
@@ -437,6 +475,8 @@ const fr: Dict = {
     victoryLabel: "// OPÉRATION RÉUSSIE",
     victoryTitle: "ALBERT NEUTRALISÉ",
     victorySub: "Toutes les équipes se sont évadées — la fuite est annulée.",
+    learnLabel: "MODE APPRENTISSAGE",
+    learnStatus: { running: "EN COURS", paused: "EN PAUSE" },
   },
 
   errors: {

@@ -24,6 +24,7 @@ import { useI18n } from "@/components/i18n-provider";
 import type { ArcadeSubmission } from "@/lib/arcade/types";
 import { Countdown } from "./countdown";
 import {
+  AcronymPlay,
   DragPlay,
   HiddenPlay,
   MatchPlay,
@@ -39,6 +40,8 @@ export function ArcadeGame({ initial }: { initial: ArcadeView }) {
   const [view, setView] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [shake, setShake] = useState(false);
+  // Remonte la mécanique acronyme sur mauvaise réponse (repart à la 1re sous-question).
+  const [attempt, setAttempt] = useState(0);
   const [resetScreen, setResetScreen] = useState<"timeout" | null>(null);
   const [sabotageOpen, setSabotageOpen] = useState(false);
   const [hiddenCode, setHiddenCode] = useState<string | null>(null);
@@ -82,6 +85,7 @@ export function ArcadeGame({ initial }: { initial: ArcadeView }) {
       } else {
         setShake(true);
         setTimeout(() => setShake(false), 450);
+        setAttempt((a) => a + 1);
         toast.error("ACCÈS REFUSÉ — Albert ricane. Réessaie.");
         setView(res.view);
       }
@@ -371,6 +375,14 @@ export function ArcadeGame({ initial }: { initial: ArcadeView }) {
         )}
         {q.mechanic.kind === "target" && (
           <TargetPlay key={q.id} m={q.mechanic} onSubmit={submit} disabled={pending} />
+        )}
+        {q.mechanic.kind === "acronym" && (
+          <AcronymPlay
+            key={`acr-${q.id}-${attempt}`}
+            m={q.mechanic}
+            onSubmit={submit}
+            disabled={pending}
+          />
         )}
         {q.mechanic.kind === "hidden" && (
           <HiddenPlay

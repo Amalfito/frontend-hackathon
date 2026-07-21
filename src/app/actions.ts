@@ -250,6 +250,31 @@ export async function gameSetLock(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+/* --------------------------------------------------------------------------
+ * Chrono « mode apprentissage » — distinct de la bombe. S'affiche à sa place
+ * tant que la bombe n'est pas armée (game_arm le désactive).
+ * ------------------------------------------------------------------------ */
+export async function learnStart(formData: FormData): Promise<void> {
+  const minutes = Math.max(1, Number(formData.get("minutes") ?? 30));
+  await callGameRpc("learn_timer_start", { p_minutes: minutes });
+  revalidatePath("/admin");
+}
+
+export async function learnPause(): Promise<void> {
+  await callGameRpc("learn_timer_pause");
+  revalidatePath("/admin");
+}
+
+export async function learnResume(): Promise<void> {
+  await callGameRpc("learn_timer_resume");
+  revalidatePath("/admin");
+}
+
+export async function learnReset(): Promise<void> {
+  await callGameRpc("learn_timer_reset");
+  revalidatePath("/admin");
+}
+
 /* ==========================================================================
  * LECTURE PUBLIQUE de l'état du jeu (pour le chrono côté joueur)
  * ======================================================================== */

@@ -99,6 +99,27 @@ async function loadState(tid: string): Promise<ArcadeRow> {
 }
 
 /**
+ * L'escape game est-il ouvert ? (bombe armée au moins une fois : status ≠ idle).
+ * Le chrono « learn » ne compte PAS — seule la bombe ouvre le jeu.
+ * Best-effort : toute erreur → true (fail-open), on ne bloque pas par accident.
+ */
+async function bombStarted(
+  supabase: ReturnType<typeof createAdminClient>,
+): Promise<boolean> {
+  try {
+    const { data } = await supabase
+      .from("game_state")
+      .select("status")
+      .eq("id", 1)
+      .maybeSingle<{ status: string }>();
+    if (!data) return true;
+    return data.status !== "idle";
+  } catch {
+    return true;
+  }
+}
+
+/**
  * La bombe globale a-t-elle explosé ? (armée et chrono dépassé, ou 'exploded').
  * Best-effort : toute erreur (base non prête) → false, le jeu reste jouable.
  */
@@ -232,6 +253,14 @@ export async function submitArcade(sub: ArcadeSubmission): Promise<SubmitResult>
   try {
     const supabase = createAdminClient();
 
+    // L'escape game n'est pas ouvert tant que la bombe n'a pas été armée.
+    if (!(await bombStarted(supabase))) {
+      return {
+        error:
+          "⏳ L'escape game n'a pas encore démarré — attendez que le maître du jeu lance le chronomètre.",
+      };
+    }
+
     // Chrono d'Albert écoulé (bombe armée & expirée) → plus aucune soumission :
     // les données ont fuité, il faut attendre les consignes du maître du jeu.
     if (await bombDetonated(supabase)) {
@@ -300,7 +329,7 @@ export async function arcadeTimeout(): Promise<ArcadeView | { error: string }> {
         q: 0,
         score: 0,
         restarts,
-        variant: restarts % 2,
+        variant: restarts % 4,
         finished_at: null,
         updated_at: new Date().toISOString(),
       })

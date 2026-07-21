@@ -195,6 +195,36 @@ export const chapters: ExpressChapter[] = [
         explanation:
           "Court, hiérarchisé, générique, itératif. Trop spécifique = il bride les autres usages.",
       },
+      {
+        q: "Pourquoi rester GÉNÉRAL dans son master prompt ?",
+        options: [
+          {
+            label: "Il s'applique à 100 % des conversations — une règle trop spécifique (ex. « toujours analytique ») bride les autres usages, comme le brainstorm",
+            correct: true,
+          },
+          { label: "Parce que Claude n'aime pas les détails" },
+          { label: "Pour qu'il soit plus long" },
+        ],
+        explanation:
+          "Ces instructions valent pour TOUS tes échanges : imposer « toujours analytique » peut plomber tes sessions créatives.",
+      },
+      {
+        q: "Deux pièges du master prompt ? (plusieurs)",
+        multi: true,
+        options: [
+          {
+            label: "Des instructions de Projet qui le contredisent (Claude ne sait plus quoi suivre)",
+            correct: true,
+          },
+          {
+            label: "Sur une longue conversation, Claude peut peu à peu l'oublier",
+            correct: true,
+          },
+          { label: "Il coûte des tokens supplémentaires à chaque mot tapé par l'utilisateur" },
+        ],
+        explanation:
+          "Évite les Projets contradictoires ; et sur un long échange, re-rappelle le point clé ou repars au propre.",
+      },
     ],
   },
   {
