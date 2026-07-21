@@ -28,10 +28,14 @@ export function GameBanner() {
     };
   }, []);
 
-  // Zone apprentissage : pas de chrono.
-  if (pathname?.startsWith("/learn")) return null;
   // Évite un flash avant le premier chargement de l'état.
   if (!loaded) return null;
 
-  return <BombTimer initial={state} variant="bar" />;
+  // Zone apprentissage : jamais la bombe — seulement le chrono « learn » s'il
+  // est actif (sinon la barre reste vide, espace serein).
+  if (pathname?.startsWith("/learn")) {
+    return <BombTimer initial={state} variant="bar" context="learn" />;
+  }
+
+  return <BombTimer initial={state} variant="bar" context="global" />;
 }

@@ -52,6 +52,12 @@ export type GameState = {
   victory_at?: string | null;
   first_finisher_id?: string | null;
   first_finisher_name?: string | null;
+  /* Chrono « mode apprentissage » (cf. 0004_learn_timer.sql), distinct de la bombe. */
+  learn_status?: "idle" | "running" | "paused";
+  learn_duration_seconds?: number;
+  learn_started_at?: string | null;
+  learn_ends_at?: string | null;
+  learn_remaining_seconds?: number | null;
 };
 
 /** Documentation ludique (vue `lessons_public`). */

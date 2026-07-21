@@ -307,6 +307,131 @@ Le prompt ci-dessous fait de Claude ton relecteur de template.`,
         },
       ],
     },
+    {
+      slug: "master-prompt",
+      title: "Le Master Prompt",
+      summary: "Le réglage global qui parle pour toi dans TOUTES tes conversations : ce que c'est, comment le garder efficace, et les pièges qui le rendent contre-productif.",
+      minutes: 7,
+      blocks: [
+        {
+          kind: "concept",
+          title: "Un brief permanent, ajouté en silence",
+          md: `Tu peux définir, une fois pour toutes, des **instructions personnelles** que Claude applique à **100 % de tes conversations** — sans que tu aies à les répéter. C'est le **Master Prompt** (aussi appelé instructions personnelles / preferences).
+
+Il est **ajouté silencieusement en tête de chacun de tes échanges**. Il sert à personnaliser Claude sur ce qui ne change jamais, quel que soit le sujet :
+
+1. **Le rôle attendu** — « Tu t'adresses à un chef de projet Network Ops chez Electra. »
+2. **Le format de sortie** — « Réponses en puces courtes, va droit au but, pas d'introduction. »
+3. **Le style d'interaction** — « Pose-moi une question si ma demande est ambiguë avant de te lancer. »
+4. **Les préférences techniques** — « Quand tu donnes du code, c'est du TypeScript ; unités en kW et kWh. »
+
+À ne pas confondre avec un **Projet** (qui cible UN périmètre précis) : le Master Prompt, lui, s'applique **partout**.`,
+        },
+        {
+          kind: "concept",
+          title: "3 bonnes pratiques",
+          md: `1. **Garde-le court.** C'est un cadre, pas un mode d'emploi. Quelques lignes suffisent ; un pavé dilue tout et grignote ton contexte à chaque conversation.
+2. **Structure et hiérarchise** — le plus important d'abord. Claude accorde plus de poids à ce qui est en tête.
+3. **Reste général.** Ces instructions concernent TOUTES tes conversations : elles doivent rester valables pour n'importe quelle demande. Exemple de piège : imposer « sois toujours analytique et rigoureux » peut **brider** Claude dans tes futurs brainstorms créatifs.
+
+Et un 4ᵉ réflexe qui vaut de l'or : **itère.** Reviens-y régulièrement pour l'affiner à partir des comportements que tu as réellement observés chez Claude — retire ce qui ne sert pas, précise ce qui a raté.`,
+        },
+        {
+          kind: "beforeAfter",
+          title: "Trop, c'est comme pas assez",
+          bad: `Tu es un assistant expert en tout. Sois toujours extrêmement analytique, exhaustif et rigoureux. Donne systématiquement des réponses longues et détaillées avec beaucoup d'exemples. Utilise toujours un ton très formel. Commence chaque réponse par un résumé, puis un plan, puis le développement, puis une conclusion, puis des recommandations, puis les limites... [30 lignes de règles ultra-spécifiques]`,
+          good: `Contexte : je travaille en Network Operations chez Electra (recharge VE).
+- Réponses concises, en puces, sans intro ni conclusion inutile.
+- Si ma demande est ambiguë, pose-moi une question avant de te lancer.
+- Ne donne jamais de chiffre non sourcé : si une donnée manque, dis-le.`,
+          explanation: "Le ❌ est long, ultra-spécifique et impose « toujours analytique » — il va plomber tes sessions de brainstorm et saturer ton contexte. Le ✅ est court, général, hiérarchisé : il aide partout sans jamais gêner.",
+        },
+        {
+          kind: "prompt",
+          title: "Un master prompt de départ (à copier puis affiner)",
+          prompt: `Contexte : je travaille chez Electra (réseau de recharge ultra-rapide pour véhicules électriques), pôle Network Operations. Langue : français.
+
+Préférences (par ordre d'importance) :
+1. Va droit au but : réponses en puces courtes, pas d'introduction ni de conclusion de politesse.
+2. Si ma demande est ambiguë ou s'il te manque une info clé, pose-moi UNE question avant de répondre.
+3. N'invente jamais un chiffre : si une donnée manque, écris « donnée manquante » plutôt que d'estimer.
+4. Quand tu donnes du code, c'est du TypeScript ; unités d'énergie en kW / kWh.
+
+Reste général : ces règles valent pour toutes mes demandes, y compris créatives.`,
+          note: "Colle-le dans tes instructions personnelles Claude, vis avec pendant une semaine, puis retire/ajuste ce qui n'a pas servi. Un master prompt se cultive, il ne se fige pas.",
+        },
+        {
+          kind: "warning",
+          title: "Deux pièges à garder en tête",
+          md: `1. **Projets contradictoires.** Si tu crées des **Projets** Claude, évite d'y mettre des instructions qui **contredisent** ton master prompt (ex. : master prompt « réponses courtes » vs projet « réponses très détaillées »). Claude ne saurait plus où donner de la tête — les consignes se neutralisent.
+2. **Les longues conversations dérivent.** Plus une conversation dure, plus il y a de risque que Claude **oublie** peu à peu ces instructions (elles s'éloignent dans le contexte). Réflexe : sur un long échange, re-rappelle le point important au moment voulu (« rappel : réponds en puces »), ou repars sur une conversation fraîche.`,
+        },
+        {
+          kind: "exercise",
+          title: "🛠️ Écris (et teste) ton master prompt",
+          md: `1. Liste **3 comportements** que tu veux voir dans 100 % de tes conversations Claude (format ? ton ? langue ? réflexe anti-hallucination ?).
+2. Rédige-les en **4-6 lignes maximum**, le plus important d'abord, en restant **génériques**.
+3. Mets-les dans tes instructions personnelles, puis fais le **test du grand écart** : une demande analytique (analyse d'un CSV de sessions) ET une demande créative (10 noms de campagne). Ton master prompt aide-t-il les deux sans en gêner aucune ?
+4. Ajuste : si une règle a bridé le brainstorm, généralise-la ou retire-la.
+
+Le prompt ci-dessous fait de Claude ton relecteur de master prompt.`,
+          prompt: "Voici mon master prompt (instructions personnelles appliquées à TOUTES mes conversations Claude) : [colle-le]. Audite-le selon 4 critères : 1) est-il assez COURT ? 2) est-il HIÉRARCHISÉ (le plus important d'abord) ? 3) est-il assez GÉNÉRAL pour ne pas brider mes demandes créatives (repère toute règle du type « toujours analytique/exhaustif/formel ») ? 4) contient-il une contradiction interne ou une instruction ambiguë ? Pour chaque critère, dis si c'est bon ou à corriger, et propose une version resserrée.",
+          checklist: [
+            "Mon master prompt tient en 6 lignes maximum",
+            "La règle la plus importante est en premier",
+            "Aucune règle du type « toujours analytique/exhaustif » qui briderait un brainstorm",
+            "J'ai fait le test du grand écart (demande analytique + demande créative)",
+            "Je sais qu'il ne doit pas contredire les instructions de mes Projets Claude",
+          ],
+        },
+        {
+          kind: "quiz",
+          title: "Master Prompt — le réflexe global",
+          questions: [
+            {
+              q: "Qu'est-ce que le Master Prompt (instructions personnelles) ?",
+              options: [
+                { label: "Des instructions ajoutées silencieusement à TOUTES tes conversations avec Claude", correct: true },
+                { label: "Le premier message d'une seule conversation" },
+                { label: "Les instructions d'un Projet Claude précis" },
+                { label: "Un mot de passe d'accès à Claude" },
+              ],
+              explanation: "Il personnalise Claude globalement (rôle, format, style, préférences techniques) sur 100 % de tes échanges — contrairement à un Projet, qui ne vaut que pour son périmètre.",
+            },
+            {
+              q: "Quelles sont de bonnes pratiques pour un master prompt ? (plusieurs réponses)",
+              multi: true,
+              options: [
+                { label: "Le garder court", correct: true },
+                { label: "Hiérarchiser : le plus important d'abord", correct: true },
+                { label: "Rester général (il vaut pour toutes tes conversations)", correct: true },
+                { label: "Y détailler un maximum de règles ultra-spécifiques" },
+                { label: "L'itérer à partir des comportements observés", correct: true },
+              ],
+              explanation: "Court, hiérarchisé, général et itératif. Trop spécifique (ou « toujours analytique ») bride tes autres usages, notamment créatifs.",
+            },
+            {
+              q: "Pourquoi éviter des instructions de Projet qui contredisent ton master prompt ?",
+              options: [
+                { label: "Parce que les consignes se neutralisent et Claude ne sait plus quoi suivre", correct: true },
+                { label: "Parce que les Projets sont payants" },
+                { label: "Parce que le master prompt efface les Projets" },
+              ],
+              explanation: "Master prompt et Projet s'additionnent : s'ils se contredisent (court vs très détaillé), Claude reçoit des ordres incompatibles.",
+            },
+            {
+              q: "Sur une très longue conversation, quel risque avec le master prompt ?",
+              options: [
+                { label: "Claude peut progressivement l'oublier (il s'éloigne dans le contexte)", correct: true },
+                { label: "Il devient définitif et impossible à changer" },
+                { label: "Il se duplique à chaque message" },
+              ],
+              explanation: "Plus l'échange dure, plus les instructions initiales s'éloignent. Réflexe : rappeler le point clé au moment voulu, ou repartir sur une conversation fraîche.",
+            },
+          ],
+        },
+      ],
+    },
   ],
   checkpoint: {
     title: "Checkpoint — Prompt Jedi",

@@ -26,6 +26,17 @@ function computeRemaining(state: GameState, nowMs: number): number | null {
   return null;
 }
 
+/** Secondes restantes du chrono learn (learn_ends_at si running, sinon mémorisé). */
+function computeLearnRemaining(state: GameState, nowMs: number): number | null {
+  if (state.learn_status === "running" && state.learn_ends_at) {
+    return Math.max(0, (new Date(state.learn_ends_at).getTime() - nowMs) / 1000);
+  }
+  if (state.learn_status === "paused") {
+    return state.learn_remaining_seconds ?? null;
+  }
+  return null;
+}
+
 /** Regroupe l'affichage (chiffres, ton, états critiques) au même endroit. */
 function derive(state: GameState | null, nowMs: number) {
   if (!state) {
@@ -110,14 +121,21 @@ function useLiveState(initial: GameState | null) {
 export function BombTimer({
   initial,
   variant = "full",
+  context = "global",
 }: {
   initial: GameState | null;
   variant?: "full" | "bar";
+  /** "learn" = zone apprentissage : seul le chrono learn s'affiche, jamais la bombe. */
+  context?: "global" | "learn";
 }) {
   const { t } = useI18n();
   const { state, nowMs } = useLiveState(initial);
   const d = derive(state, nowMs);
   const statusLabel = t.bomb.status[d.statusKey];
+
+  const learnActive =
+    !!state && (state.learn_status === "running" || state.learn_status === "paused");
+  const bombArmed = !!state && state.status !== "idle";
 
   /* --- Victoire collective : le chrono est remplacé par une bannière ------- */
   if (d.victory) {
@@ -151,6 +169,37 @@ export function BombTimer({
         </p>
       </div>
     );
+  }
+
+  /* --- Chrono « mode apprentissage » (barre calme, à la place de la bombe) - */
+  if (variant === "bar") {
+    // Priorité à la bombe : on ne montre le chrono learn que si la bombe n'est
+    // pas armée (ou en zone /learn, où la bombe ne s'affiche jamais).
+    const showLearn = learnActive && (context === "learn" || !bombArmed);
+    if (showLearn && state) {
+      const remaining = computeLearnRemaining(state, nowMs);
+      const learnDisplay =
+        remaining !== null ? fmt(remaining) : fmt(state.learn_duration_seconds ?? 0);
+      const learnPaused = state.learn_status === "paused";
+      return (
+        <div className="w-full border-b border-primary/30 bg-background/80 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-2.5">
+            <span className="text-lg text-primary" aria-hidden>
+              📚
+            </span>
+            <span className="font-mono text-3xl font-bold tabular-nums tracking-widest text-primary sm:text-4xl">
+              {learnDisplay}
+            </span>
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-primary">
+              {t.bomb.learnLabel}{" "}
+              {learnPaused ? t.bomb.learnStatus.paused : t.bomb.learnStatus.running}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    // Zone /learn sans chrono actif : rien (on garde l'espace serein).
+    if (context === "learn") return null;
   }
 
   /* --- Barre globale, pleine largeur, gros chiffres ------------------------ */
