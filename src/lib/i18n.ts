@@ -80,6 +80,54 @@ const en = {
     missionDone: "★ mission complete",
     stage: "stage",
     back: "› Back to the mission",
+    lock: "lock",
+    escaped: "★ escaped",
+    inProgress: "in progress",
+    restarts: "resets",
+    teamsDone: "teams escaped",
+    podium: "PODIUM",
+    live: "LIVE",
+    firstOut: "first out",
+    trapWarning:
+      "⚠ Albert's trap is armed — the first team out re-started the countdown. Everyone must escape before it hits zero.",
+  },
+
+  // Dialogues d'Albert (fausse victoire → piège → victoire collective).
+  albert: {
+    name: "ALBERT",
+    // Fausse victoire (1re équipe qui finit)
+    fakeTag: "// TRANSMISSION — ALBERT",
+    fakeTitle: "WELL PLAYED.",
+    fakeLines: [
+      "Well played… I underestimated you.",
+      "With all the knowledge you've gathered, you actually neutralized me.",
+      "The network is yours. Go on — claim your spot on the podium.",
+    ],
+    fakeCta: "View the podium ▸",
+    // Révélation piège
+    revealTag: "// ⚠ SYSTEM BREACH — ALBERT",
+    revealTitle: "HEHEHE…",
+    revealLines: [
+      "Hehe… gotcha.",
+      "You just sealed your own fate: that click RE-ARMED the countdown.",
+      "Every last one of your files leaks unless EVERY team escapes before the timer hits zero.",
+      "Better run and warn the others.",
+    ],
+    revealCta: "To the leaderboard ▸",
+    // Attente (équipe finie, mais la bombe tourne encore)
+    waitTitle: "You're out — but the clock is ticking",
+    waitBody:
+      "Your team escaped. But Albert's countdown is still running for everyone. Rally the other teams: the data only stays safe once ALL of them are out.",
+    waitCta: "Follow it live on the leaderboard ▸",
+    // Victoire collective (toutes les équipes ont fini)
+    victoryTag: "// OPERATION ALBERT — CLOSED",
+    victoryTitle: "ALBERT DEFEATED",
+    victoryLines: [
+      "Impossible… every single team made it out in time.",
+      "The network is locked, my leaks cancelled.",
+      "You beat me. For real this time. Bravo, humans.",
+    ],
+    victoryCta: "View the final podium ▸",
   },
 
   learn: {
@@ -167,6 +215,9 @@ const en = {
       defused: "DEFUSED",
       exploded: "DETONATED",
     },
+    victoryLabel: "// OPERATION SUCCESSFUL",
+    victoryTitle: "ALBERT NEUTRALIZED",
+    victorySub: "All teams escaped — the leak is cancelled.",
   },
 
   // Messages renvoyés par les Server Actions
@@ -252,6 +303,50 @@ const fr: Dict = {
     missionDone: "★ mission accomplie",
     stage: "étape",
     back: "› Retour à la mission",
+    lock: "verrou",
+    escaped: "★ évadée",
+    inProgress: "en cours",
+    restarts: "resets",
+    teamsDone: "équipes évadées",
+    podium: "PODIUM",
+    live: "LIVE",
+    firstOut: "1re sortie",
+    trapWarning:
+      "⚠ Le piège d'Albert est armé — la 1re équipe sortie a relancé le compte à rebours. Toutes les équipes doivent s'évader avant la fin du chrono.",
+  },
+
+  // Dialogues d'Albert (fausse victoire → piège → victoire collective).
+  albert: {
+    name: "ALBERT",
+    fakeTag: "// TRANSMISSION — ALBERT",
+    fakeTitle: "BIEN JOUÉ.",
+    fakeLines: [
+      "Bien joué… je vous avais sous-estimés.",
+      "Grâce à toutes les connaissances que vous avez accumulées, vous m'avez neutralisé.",
+      "Le réseau est à vous. Allez — réclamez votre place sur le podium.",
+    ],
+    fakeCta: "Voir le podium ▸",
+    revealTag: "// ⚠ INTRUSION SYSTÈME — ALBERT",
+    revealTitle: "HÉHÉHÉ…",
+    revealLines: [
+      "Héhé… je vous ai bien eu.",
+      "Vous venez de causer votre propre perte : ce clic a RÉACTIVÉ le compte à rebours.",
+      "Toutes vos données vont fuiter si la TOTALITÉ des équipes ne termine pas l'escape game avant la fin du chrono.",
+      "Courez prévenir les autres.",
+    ],
+    revealCta: "Vers le classement ▸",
+    waitTitle: "Vous êtes sortis — mais le chrono tourne encore",
+    waitBody:
+      "Votre équipe s'est évadée. Mais le compte à rebours d'Albert continue pour tout le monde. Ralliez les autres équipes : les données ne sont sauvées que lorsque TOUTES ont terminé.",
+    waitCta: "Suivez le direct sur le classement ▸",
+    victoryTag: "// OPÉRATION ALBERT — CLÔTURÉE",
+    victoryTitle: "ALBERT VAINCU",
+    victoryLines: [
+      "Impossible… toutes les équipes s'en sont sorties à temps.",
+      "Le réseau est verrouillé, mes fuites annulées.",
+      "Vous m'avez battu. Pour de bon, cette fois. Bravo, humains.",
+    ],
+    victoryCta: "Voir le podium final ▸",
   },
 
   learn: {
@@ -339,6 +434,9 @@ const fr: Dict = {
       defused: "DÉSAMORCÉE",
       exploded: "EXPLOSÉE",
     },
+    victoryLabel: "// OPÉRATION RÉUSSIE",
+    victoryTitle: "ALBERT NEUTRALISÉ",
+    victorySub: "Toutes les équipes se sont évadées — la fuite est annulée.",
   },
 
   errors: {

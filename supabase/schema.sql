@@ -61,9 +61,20 @@ create table if not exists public.game_state (
   remaining_seconds   int,                          -- mémorisé quand paused/stopped
   submissions_locked  boolean not null default false, -- le bouton STOP gèle le jeu
   message             text not null default '',     -- bandeau diffusé aux équipes
-  updated_at          timestamptz not null default now()
+  updated_at          timestamptz not null default now(),
+  -- ENDGAME (v3) : le piège d'Albert + la victoire collective.
+  trap_armed_at       timestamptz,                  -- 1re équipe finie → fausse victoire (pause)
+  trap_sprung_at      timestamptz,                  -- « voir le podium » → bombe réactivée
+  first_finisher_id   uuid,                         -- équipe qui a déclenché le piège
+  victory_at          timestamptz                   -- toutes les équipes ont fini → victoire
 );
 insert into public.game_state (id) values (1) on conflict (id) do nothing;
+-- Migration douce si la table existait déjà sans les colonnes endgame.
+alter table public.game_state
+  add column if not exists trap_armed_at     timestamptz,
+  add column if not exists trap_sprung_at    timestamptz,
+  add column if not exists first_finisher_id uuid,
+  add column if not exists victory_at        timestamptz;
 
 -- --- Équipes (joueurs) ------------------------------------------------------
 create table if not exists public.teams (
@@ -171,9 +182,14 @@ create or replace view public.stages_public as
   from public.stages;
 
 create or replace view public.game_state_public as
-  select status, duration_seconds, started_at, ends_at, remaining_seconds,
-         submissions_locked, message, updated_at
-  from public.game_state where id = 1;
+  select gs.status, gs.duration_seconds, gs.started_at, gs.ends_at,
+         gs.remaining_seconds, gs.submissions_locked, gs.message, gs.updated_at,
+         gs.trap_armed_at, gs.trap_sprung_at, gs.victory_at,
+         gs.first_finisher_id,
+         ft.name as first_finisher_name
+  from public.game_state gs
+  left join public.teams ft on ft.id = gs.first_finisher_id
+  where gs.id = 1;
 
 create or replace view public.lessons_public as
   select id, category, slug, order_index, title, summary, content, icon, estimated_minutes
@@ -485,9 +501,82 @@ as $$
 begin
   if not public.is_admin(p_admin_id) then return jsonb_build_object('error','forbidden'); end if;
   update public.game_state set status='idle', started_at=null, ends_at=null,
-         remaining_seconds=null, submissions_locked=false, message='', updated_at=now()
+         remaining_seconds=null, submissions_locked=false, message='',
+         trap_armed_at=null, trap_sprung_at=null, first_finisher_id=null, victory_at=null,
+         updated_at=now()
   where id = 1;
   return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- ----------------------------------------------------------------------------
+-- ENDGAME — le piège d'Albert + la victoire collective (cf. 0003_endgame.sql).
+-- La bombe n'est vraiment désarmée que quand TOUTES les équipes ont fini.
+-- ----------------------------------------------------------------------------
+
+-- Une équipe vient de terminer l'arcade : victoire collective OU armement du piège.
+create or replace function public.arcade_on_finish(p_team_id uuid)
+returns jsonb
+language plpgsql security definer set search_path = public, extensions
+as $$
+declare
+  v_total    int;
+  v_finished int;
+  v_game     public.game_state;
+  v_left     int;
+begin
+  select count(*)::int,
+         count(*) filter (where finished_at is not null)::int
+    into v_total, v_finished
+  from public.arcade_state;
+
+  select * into v_game from public.game_state where id = 1;
+
+  if v_total > 0 and v_finished >= v_total then
+    update public.game_state set
+      status='defused', submissions_locked=true, ends_at=null, remaining_seconds=0,
+      victory_at=coalesce(victory_at, now()), trap_sprung_at=coalesce(trap_sprung_at, now()),
+      updated_at=now()
+    where id = 1;
+    return jsonb_build_object('victory', true);
+  end if;
+
+  if v_game.trap_armed_at is null and v_game.status = 'running' then
+    v_left := greatest(0, floor(extract(epoch from (v_game.ends_at - now()))))::int;
+    update public.game_state set
+      status='paused', remaining_seconds=v_left, ends_at=null,
+      trap_armed_at=now(), first_finisher_id=p_team_id, updated_at=now()
+    where id = 1;
+    return jsonb_build_object('trap_armed', true, 'first', true);
+  end if;
+
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- Le 1er finisher clique « voir le podium » → il réactive la bombe (une fois).
+create or replace function public.arcade_spring_trap(p_team_id uuid)
+returns jsonb
+language plpgsql security definer set search_path = public, extensions
+as $$
+declare v_game public.game_state;
+begin
+  select * into v_game from public.game_state where id = 1;
+  if v_game.first_finisher_id is distinct from p_team_id then
+    return jsonb_build_object('error', 'not_first');
+  end if;
+  if v_game.victory_at is not null then
+    return jsonb_build_object('victory', true);
+  end if;
+  if v_game.trap_sprung_at is not null then
+    return jsonb_build_object('ok', true, 'already', true);
+  end if;
+  update public.game_state set
+    status='running',
+    ends_at = now() + make_interval(secs => coalesce(remaining_seconds, duration_seconds)),
+    remaining_seconds=null, trap_sprung_at=now(), updated_at=now()
+  where id = 1 and trap_armed_at is not null and trap_sprung_at is null;
+  return jsonb_build_object('ok', true, 'sprung', true);
 end;
 $$;
 
@@ -527,7 +616,9 @@ begin
     'game_defuse(uuid)',
     'game_reset(uuid)',
     'game_set_lock(uuid, boolean)',
-    'game_set_message(uuid, text)'
+    'game_set_message(uuid, text)',
+    'arcade_on_finish(uuid)',
+    'arcade_spring_trap(uuid)'
   ]) loop
     execute format('revoke all on function public.%s from public, anon, authenticated;', fn);
     execute format('grant execute on function public.%s to service_role;', fn);

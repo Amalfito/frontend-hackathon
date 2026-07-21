@@ -7,17 +7,20 @@
  * ========================================================================== */
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   arcadeTimeout,
   revealHidden,
   sabotage,
+  springTrap,
   submitArcade,
   type ArcadeView,
 } from "@/app/game/actions";
+import { AlbertSpeech } from "@/components/albert";
 import { celebrateBadge, celebrateSmall } from "@/components/fx/celebrate";
 import { XpNumber } from "@/components/fx/xp-number";
+import { useI18n } from "@/components/i18n-provider";
 import type { ArcadeSubmission } from "@/lib/arcade/types";
 import { Countdown } from "./countdown";
 import {
@@ -32,16 +35,36 @@ import {
 } from "./mechanics";
 
 export function ArcadeGame({ initial }: { initial: ArcadeView }) {
+  const { t } = useI18n();
   const [view, setView] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [shake, setShake] = useState(false);
   const [resetScreen, setResetScreen] = useState<"timeout" | null>(null);
   const [sabotageOpen, setSabotageOpen] = useState(false);
   const [hiddenCode, setHiddenCode] = useState<string | null>(null);
+  // Piège d'Albert : le 1er finisher clique « voir le podium » → révélation.
+  const [revealTrap, setRevealTrap] = useState(false);
   // Notification one-shot renvoyée par le serveur au chargement.
   const [struckBy] = useState(initial.sabotagedBy);
 
   const q = view.question;
+  const eg = view.endgame;
+
+  // Décharge de confettis quand la victoire collective tombe.
+  useEffect(() => {
+    if (eg.victory) celebrateBadge();
+  }, [eg.victory]);
+
+  /** Le 1er finisher réactive la bombe (le piège se referme). */
+  const doSpringTrap = () => {
+    startTransition(async () => {
+      const res = await springTrap();
+      if (!("error" in res)) {
+        setView((v) => ({ ...v, endgame: res.endgame }));
+      }
+      setRevealTrap(true);
+    });
+  };
 
   const submit = (sub: ArcadeSubmission) => {
     startTransition(async () => {
@@ -117,27 +140,103 @@ export function ArcadeGame({ initial }: { initial: ArcadeView }) {
     );
   }
 
-  /* --- Écran de victoire --------------------------------------------------- */
+  /* --- Fin de partie (les 20 verrous sont tombés) -------------------------- */
   if (view.finished || !q) {
+    const scoreLine = (
+      <p className="font-mono text-sm text-muted-foreground">
+        Score :{" "}
+        <strong className="text-primary">
+          <XpNumber value={view.score} /> pts
+        </strong>
+        {view.restarts > 0 &&
+          ` (malgré ${view.restarts} reset${view.restarts > 1 ? "s" : ""}…)`}
+      </p>
+    );
+
+    // 1) VICTOIRE COLLECTIVE — toutes les équipes ont terminé à temps.
+    if (eg.victory) {
+      return (
+        <AlbertSpeech
+          tone="victory"
+          tag={t.albert.victoryTag}
+          title={t.albert.victoryTitle}
+          lines={t.albert.victoryLines}
+        >
+          <div className="flex flex-col items-center gap-4">
+            {scoreLine}
+            <Link
+              href="/leaderboard"
+              className="btn-charge rounded-md bg-primary px-6 py-3 font-mono text-sm font-semibold text-primary-foreground"
+            >
+              {t.albert.victoryCta}
+            </Link>
+          </div>
+        </AlbertSpeech>
+      );
+    }
+
+    // 2) FAUSSE VICTOIRE — le 1er finisher, piège armé, avant le clic fatal.
+    if (eg.isFirstFinisher && eg.trapArmed && !revealTrap) {
+      return (
+        <AlbertSpeech
+          tone="friendly"
+          tag={t.albert.fakeTag}
+          title={t.albert.fakeTitle}
+          lines={t.albert.fakeLines}
+        >
+          <div className="flex flex-col items-center gap-4">
+            {scoreLine}
+            <button
+              type="button"
+              disabled={pending}
+              onClick={doSpringTrap}
+              className="btn-charge rounded-md bg-primary px-6 py-3 font-mono text-sm font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              {t.albert.fakeCta}
+            </button>
+          </div>
+        </AlbertSpeech>
+      );
+    }
+
+    // 3) RÉVÉLATION — le piège se referme, la bombe repart.
+    if (revealTrap) {
+      return (
+        <AlbertSpeech
+          tone="evil"
+          tag={t.albert.revealTag}
+          title={t.albert.revealTitle}
+          lines={t.albert.revealLines}
+        >
+          <Link
+            href="/leaderboard"
+            className="mx-auto block w-fit rounded-md border border-destructive/60 px-6 py-3 font-mono text-sm font-semibold text-destructive hover:bg-destructive/10"
+          >
+            {t.albert.revealCta}
+          </Link>
+        </AlbertSpeech>
+      );
+    }
+
+    // 4) EN ATTENTE — équipe sortie, mais le chrono tourne pour les autres.
     return (
-      <div className="terminal-glow flex flex-col items-center gap-5 rounded-2xl border border-primary bg-card p-10 text-center">
-        <p className="text-5xl">🏆</p>
+      <div className="terminal-glow flex flex-col items-center gap-5 rounded-2xl border border-primary/60 bg-card p-10 text-center">
+        <p className="text-5xl">🕳️</p>
         <h2 className="font-elegant text-3xl font-bold text-primary text-glow">
-          ALBERT NEUTRALISÉ
+          {t.albert.waitTitle}
         </h2>
-        <p className="max-w-md text-muted-foreground">
-          Les 20 verrous ont sauté. Score final :{" "}
-          <strong className="text-primary">
-            <XpNumber value={view.score} /> pts
-          </strong>
-          {view.restarts > 0 && ` (malgré ${view.restarts} reset${view.restarts > 1 ? "s" : ""}…)`}
-          . Le maître du jeu vous attend pour le désamorçage final.
-        </p>
+        <p className="max-w-md text-muted-foreground">{t.albert.waitBody}</p>
+        {eg.totalCount > 0 && (
+          <p className="font-mono text-sm text-accent">
+            {eg.finishedCount}/{eg.totalCount} {t.leaderboard.teamsDone}
+          </p>
+        )}
+        {scoreLine}
         <Link
           href="/leaderboard"
           className="btn-charge rounded-md bg-primary px-6 py-3 font-mono text-sm font-semibold text-primary-foreground"
         >
-          Voir le classement
+          {t.albert.waitCta}
         </Link>
       </div>
     );

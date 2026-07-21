@@ -45,6 +45,13 @@ export type GameState = {
   submissions_locked: boolean;
   message: string;
   updated_at: string;
+  /* ENDGAME — le piège d'Albert + la victoire collective (cf. 0003_endgame.sql).
+     Optionnels : `undefined` tant que la migration n'a pas tourné (dégradation douce). */
+  trap_armed_at?: string | null;
+  trap_sprung_at?: string | null;
+  victory_at?: string | null;
+  first_finisher_id?: string | null;
+  first_finisher_name?: string | null;
 };
 
 /** Documentation ludique (vue `lessons_public`). */
